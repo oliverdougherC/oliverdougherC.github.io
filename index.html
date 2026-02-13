@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting Workshop: Survival Guide</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: JetBrains Mono for that terminal feel -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0d1117; /* GitHub Dark Dimmed */
+            color: #c9d1d9;
+        }
+        .terminal-green {
+            color: #2ea043;
+        }
+        .terminal-blue {
+            color: #58a6ff;
+        }
+        .terminal-border {
+            border: 1px solid #30363d;
+        }
+        .code-block {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #58a6ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-[#30363d] bg-[#161b22] sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="terminal" class="terminal-green w-6 h-6"></i>
+                <h1 class="text-lg md:text-xl font-bold tracking-tight">
+                    <span class="terminal-green">./</span>workshop_survival_guide.md
+                </h1>
+            </div>
+            <div class="text-xs text-gray-500 border border-[#30363d] px-2 py-1 rounded">
+                Read-Only
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- Section: Mission & Rules -->
+        <section class="space-y-4 animate-fade-in">
+            <div class="p-4 rounded-lg bg-[#161b22] border border-[#30363d] shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                <h2 class="text-xl font-bold terminal-green mb-2 flex items-center">
+                    <i data-lucide="flag" class="w-5 h-5 mr-2"></i> Your Mission
+                </h2>
+                <p class="mb-4 text-gray-300">
+                    There is an Nginx web server installed on your machine. It is currently broken.
+                </p>
+                <div class="bg-[#0d1117] p-4 rounded border border-[#30363d]">
+                    <h3 class="font-bold text-white mb-2">The Rules of Engagement:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-sm text-gray-400">
+                        <li><strong class="text-[#58a6ff]">Goal:</strong> Get <code class="bg-[#21262d] px-1 rounded">curl localhost</code> to show the "Victory" message.</li>
+                        <li><strong class="text-[#58a6ff]">Tools:</strong> Google, ChatGPT, and AI are <span class="text-green-400">ALLOWED</span>.</li>
+                        <li><strong class="text-[#58a6ff]">Win Condition:</strong> Raise your hand when fixed. You must <strong>EXPLAIN</strong> the bugs to the judge. If you can't explain why it works, you don't win.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Part 1 - Crash Course -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-[#30363d] flex items-center">
+                <span class="terminal-blue mr-2">01.</span> The Crash Course
+            </h2>
+            
+            <div class="grid gap-6 md:grid-cols-2">
+                <!-- Concept 1: Sudo -->
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                    <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                        <i data-lucide="shield-alert" class="w-5 h-5 mr-2 text-yellow-500"></i> The Superuser (sudo)
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        Linux protects system files. To edit configs or restart services, you need "Admin" privileges.
+                    </p>
+                    <div class="code-block p-3 text-sm font-mono text-gray-300 group relative">
+                        <span class="text-[#f778ba]">sudo</span> nano /etc/hosts
+                        <button class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onclick="copyToClipboard('sudo nano /etc/hosts')">
+                            <i data-lucide="copy" class="w-4 h-4 text-gray-500 hover:text-white"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Concept 2: Services -->
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                    <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                        <i data-lucide="cpu" class="w-5 h-5 mr-2 text-blue-500"></i> Services (systemctl)
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        Background programs like web servers are called "Services."
+                    </p>
+                    <div class="space-y-2">
+                        <div class="code-block p-2 text-xs font-mono text-gray-300">
+                            <span class="text-gray-500"># Check status</span><br>
+                            systemctl status nginx
+                        </div>
+                        <div class="code-block p-2 text-xs font-mono text-gray-300">
+                            <span class="text-gray-500"># Restart after config changes</span><br>
+                            <span class="text-[#f778ba]">sudo</span> systemctl restart nginx
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept 3: Permissions -->
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                    <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                        <i data-lucide="lock" class="w-5 h-5 mr-2 text-red-500"></i> Permissions (chmod)
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        Files have Read, Write, Execute rights.
+                        <br>
+                        <code class="text-xs bg-[#21262d] p-0.5 rounded">-rw-r--r--</code> = Owner writes, others read.
+                    </p>
+                    <div class="code-block p-3 text-sm font-mono text-gray-300">
+                        <span class="text-gray-500"># Fix web file permissions</span><br>
+                        <span class="text-[#f778ba]">sudo</span> chmod 644 filename
+                    </div>
+                </div>
+
+                <!-- Concept 4: Logs -->
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                    <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-2 text-purple-500"></i> Logs
+                    </h3>
+                    <p class="text-sm text-gray-400 mb-3">
+                        If it breaks, Linux tells you why. You just have to find where it wrote it down.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="code-block p-2 text-xs font-mono text-gray-300">
+                            <span class="text-gray-500"># Recent system errors</span><br>
+                            journalctl -xe
+                        </div>
+                        <div class="code-block p-2 text-xs font-mono text-gray-300">
+                            <span class="text-gray-500"># Nginx specific logs</span><br>
+                            cat /var/log/nginx/error.log
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Part 2 - Commands -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-[#30363d] flex items-center">
+                <span class="terminal-blue mr-2">02.</span> Commands to Research
+            </h2>
+            <div class="overflow-x-auto rounded-lg border border-[#30363d]">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-[#161b22] text-gray-400 font-medium border-b border-[#30363d]">
+                        <tr>
+                            <th class="px-4 py-3">Command</th>
+                            <th class="px-4 py-3">Category</th>
+                            <th class="px-4 py-3">What it does</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#30363d] bg-[#0d1117]">
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">nano / vim</td>
+                            <td class="px-4 py-3 text-gray-500">Editing</td>
+                            <td class="px-4 py-3">Text editors to change config files.</td>
+                        </tr>
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">cat</td>
+                            <td class="px-4 py-3 text-gray-500">Reading</td>
+                            <td class="px-4 py-3">Prints file contents to screen.</td>
+                        </tr>
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">grep</td>
+                            <td class="px-4 py-3 text-gray-500">Search</td>
+                            <td class="px-4 py-3">Searches for a specific word inside a file.</td>
+                        </tr>
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">curl</td>
+                            <td class="px-4 py-3 text-gray-500">Network</td>
+                            <td class="px-4 py-3">Fetches a webpage from command line.</td>
+                        </tr>
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">ss -tuln</td>
+                            <td class="px-4 py-3 text-gray-500">Network</td>
+                            <td class="px-4 py-3">Shows open **Ports**. Crucial for servers.</td>
+                        </tr>
+                        <tr class="hover:bg-[#161b22] transition-colors">
+                            <td class="px-4 py-3 font-mono text-[#79c0ff]">ps aux</td>
+                            <td class="px-4 py-3 text-gray-500">Process</td>
+                            <td class="px-4 py-3">Shows all currently running programs.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section: Part 3 - Workflow -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-[#30363d] flex items-center">
+                <span class="terminal-blue mr-2">03.</span> The OODA Loop
+            </h2>
+            <div class="relative">
+                <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-[#30363d]"></div>
+                
+                <!-- Step 1 -->
+                <div class="relative flex items-start mb-8">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center z-10 text-[#79c0ff] font-bold">1</div>
+                    <div class="ml-6 pt-2">
+                        <h3 class="text-lg font-bold text-white">Observe</h3>
+                        <p class="text-gray-400">Run the command. What exact error message did you get?</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative flex items-start mb-8">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center z-10 text-[#79c0ff] font-bold">2</div>
+                    <div class="ml-6 pt-2">
+                        <h3 class="text-lg font-bold text-white">Orient</h3>
+                        <p class="text-gray-400">Copy that error. Paste it into Google or ChatGPT.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative flex items-start mb-8">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center z-10 text-[#79c0ff] font-bold">3</div>
+                    <div class="ml-6 pt-2">
+                        <h3 class="text-lg font-bold text-white">Decide</h3>
+                        <p class="text-gray-400">Based on the search, what file needs editing? What command fixes it?</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative flex items-start">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center z-10 text-green-400 font-bold">4</div>
+                    <div class="ml-6 pt-2">
+                        <h3 class="text-lg font-bold text-white">Act & Loop</h3>
+                        <p class="text-gray-400">Execute the fix. Test again. If it fails, go to Step 1.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#30363d] bg-[#161b22] py-6 mt-12">
+        <div class="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
+            <p>Good luck. We're all counting on you.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Simple Copy Function
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            // Optional: You could show a toast notification here
+            // but we'll keep it simple as per "no alerts" rule.
+        }
+    </script>
+</body>
+</html>
