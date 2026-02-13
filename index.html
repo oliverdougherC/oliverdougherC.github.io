@@ -58,7 +58,7 @@
                 </h1>
             </div>
             <div class="text-xs text-gray-500 border border-[#30363d] px-2 py-1 rounded">
-                Read-Only
+                Computer Hardware Club
             </div>
         </div>
     </header>
@@ -92,76 +92,90 @@
             <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-[#30363d] flex items-center">
                 <span class="terminal-blue mr-2">01.</span> The Crash Course
             </h2>
+            <p class="text-gray-400 mb-6 text-sm">Don't panic. Here is everything you need to know to survive in the terminal.</p>
             
             <div class="grid gap-6 md:grid-cols-2">
                 <!-- Concept 1: Sudo -->
-                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors flex flex-col">
                     <h3 class="text-lg font-bold text-white mb-2 flex items-center">
                         <i data-lucide="shield-alert" class="w-5 h-5 mr-2 text-yellow-500"></i> The Superuser (sudo)
                     </h3>
-                    <p class="text-sm text-gray-400 mb-3">
-                        Linux protects system files. To edit configs or restart services, you need "Admin" privileges.
-                    </p>
-                    <div class="code-block p-3 text-sm font-mono text-gray-300 group relative">
-                        <span class="text-[#f778ba]">sudo</span> nano /etc/hosts
-                        <button class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onclick="copyToClipboard('sudo nano /etc/hosts')">
-                            <i data-lucide="copy" class="w-4 h-4 text-gray-500 hover:text-white"></i>
-                        </button>
+                    <div class="text-sm text-gray-400 mb-4 flex-grow space-y-2">
+                        <p><strong>Analogy:</strong> "Administrator Mode" or "Simon Says".</p>
+                        <p>Linux protects system files (like web configs) from accidental damage. If you try to edit them as a normal user, it will say "Permission Denied."</p>
+                        <p>Typing <code class="text-[#f778ba]">sudo</code> before a command tells the computer: "I know what I'm doing, do it anyway."</p>
+                    </div>
+                    <div class="code-block p-3 text-sm font-mono text-gray-300 group relative mt-auto">
+                        <span class="text-gray-500"># Edit a protected file</span><br>
+                        <span class="text-[#f778ba]">sudo</span> nano /etc/hosts<br><br>
+                        <span class="text-gray-500"># Install software</span><br>
+                        <span class="text-[#f778ba]">sudo</span> apt install nginx
                     </div>
                 </div>
 
                 <!-- Concept 2: Services -->
-                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors flex flex-col">
                     <h3 class="text-lg font-bold text-white mb-2 flex items-center">
                         <i data-lucide="cpu" class="w-5 h-5 mr-2 text-blue-500"></i> Services (systemctl)
                     </h3>
-                    <p class="text-sm text-gray-400 mb-3">
-                        Background programs like web servers are called "Services."
-                    </p>
-                    <div class="space-y-2">
+                    <div class="text-sm text-gray-400 mb-4 flex-grow space-y-2">
+                        <p><strong>Analogy:</strong> A restaurant kitchen.</p>
+                        <p>Most programs stop when you close them. "Services" (or Daemons) run in the background forever, waiting for customers (web visitors). You control them with <code class="text-[#f778ba]">systemctl</code>.</p>
+                        <p><span class="text-yellow-500">Important:</span> If you change a config file, the service won't know until you <strong>restart</strong> it!</p>
+                    </div>
+                    <div class="space-y-2 mt-auto">
                         <div class="code-block p-2 text-xs font-mono text-gray-300">
-                            <span class="text-gray-500"># Check status</span><br>
+                            <span class="text-gray-500"># Is it running or dead?</span><br>
                             systemctl status nginx
                         </div>
                         <div class="code-block p-2 text-xs font-mono text-gray-300">
-                            <span class="text-gray-500"># Restart after config changes</span><br>
+                            <span class="text-gray-500"># Apply your changes</span><br>
                             <span class="text-[#f778ba]">sudo</span> systemctl restart nginx
                         </div>
                     </div>
                 </div>
 
                 <!-- Concept 3: Permissions -->
-                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors flex flex-col">
                     <h3 class="text-lg font-bold text-white mb-2 flex items-center">
                         <i data-lucide="lock" class="w-5 h-5 mr-2 text-red-500"></i> Permissions (chmod)
                     </h3>
-                    <p class="text-sm text-gray-400 mb-3">
-                        Files have Read, Write, Execute rights.
-                        <br>
-                        <code class="text-xs bg-[#21262d] p-0.5 rounded">-rw-r--r--</code> = Owner writes, others read.
-                    </p>
-                    <div class="code-block p-3 text-sm font-mono text-gray-300">
-                        <span class="text-gray-500"># Fix web file permissions</span><br>
-                        <span class="text-[#f778ba]">sudo</span> chmod 644 filename
+                    <div class="text-sm text-gray-400 mb-4 flex-grow space-y-2">
+                        <p><strong>Analogy:</strong> ID Card Access.</p>
+                        <p>Every file has 3 rights: <strong>R</strong>ead (4), <strong>W</strong>rite (2), e<strong>X</strong>ecute (1).</p>
+                        <p>Permissions are often shown as numbers:</p>
+                        <ul class="list-disc list-inside pl-2 text-gray-500">
+                            <li><code class="text-gray-300">7</code> (4+2+1) = Read, Write, Execute</li>
+                            <li><code class="text-gray-300">6</code> (4+2) = Read, Write</li>
+                            <li><code class="text-gray-300">4</code> (4) = Read only</li>
+                        </ul>
+                    </div>
+                    <div class="code-block p-3 text-sm font-mono text-gray-300 mt-auto">
+                        <span class="text-gray-500"># Give owner RW, others R (Standard)</span><br>
+                        <span class="text-[#f778ba]">sudo</span> chmod 644 filename.html<br><br>
+                        <span class="text-gray-500"># Give everyone everything (Unsafe)</span><br>
+                        <span class="text-[#f778ba]">sudo</span> chmod 777 filename.html
                     </div>
                 </div>
 
                 <!-- Concept 4: Logs -->
-                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors">
+                <div class="p-5 rounded-lg border border-[#30363d] bg-[#161b22] hover:border-[#58a6ff] transition-colors flex flex-col">
                     <h3 class="text-lg font-bold text-white mb-2 flex items-center">
                         <i data-lucide="file-text" class="w-5 h-5 mr-2 text-purple-500"></i> Logs
                     </h3>
-                    <p class="text-sm text-gray-400 mb-3">
-                        If it breaks, Linux tells you why. You just have to find where it wrote it down.
-                    </p>
-                    <div class="space-y-2">
+                    <div class="text-sm text-gray-400 mb-4 flex-grow space-y-2">
+                        <p><strong>Analogy:</strong> The Black Box Recorder.</p>
+                        <p>Linux is often silent. If you run a command and nothing happens, it usually worked.</p>
+                        <p>If it fails, it writes the reason into a log file. You just have to find it.</p>
+                    </div>
+                    <div class="space-y-2 mt-auto">
                         <div class="code-block p-2 text-xs font-mono text-gray-300">
-                            <span class="text-gray-500"># Recent system errors</span><br>
+                            <span class="text-gray-500"># Show errors for the last boot</span><br>
                             journalctl -xe
                         </div>
                         <div class="code-block p-2 text-xs font-mono text-gray-300">
-                            <span class="text-gray-500"># Nginx specific logs</span><br>
-                            cat /var/log/nginx/error.log
+                            <span class="text-gray-500"># Read the last 20 lines of a file</span><br>
+                            tail -n 20 /var/log/nginx/error.log
                         </div>
                     </div>
                 </div>
@@ -206,7 +220,7 @@
                         <tr class="hover:bg-[#161b22] transition-colors">
                             <td class="px-4 py-3 font-mono text-[#79c0ff]">ss -tuln</td>
                             <td class="px-4 py-3 text-gray-500">Network</td>
-                            <td class="px-4 py-3">Shows open **Ports**. Crucial for servers.</td>
+                            <td class="px-4 py-3">Shows open ports. Crucial for servers.</td>
                         </tr>
                         <tr class="hover:bg-[#161b22] transition-colors">
                             <td class="px-4 py-3 font-mono text-[#79c0ff]">ps aux</td>
