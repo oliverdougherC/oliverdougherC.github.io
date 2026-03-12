@@ -1698,6 +1698,188 @@ print(value)`
 flags = [True, False, True]
 for i, (n, ok) in enumerate(zip(nums, flags), start=1):
     print(i, n, ok)`
+        ),
+        makeDoc(
+            'lr-07',
+            'Loops & range()',
+            'L1',
+            'Basic for loop over iterable candidates',
+            'Iterate directly over a prepared candidate list before filtering.',
+            ['for loop', 'iterable', 'candidate loop', 'iteration basics'],
+            ['basic for', 'iterate list'],
+            `candidates = [2, 3, 5, 7, 11]
+for n in candidates:
+    if n > 10:
+        break
+    print(n)`
+        ),
+        makeDoc(
+            'lr-08',
+            'Loops & range()',
+            'L1',
+            'Basic while loop with explicit increment',
+            'Use a loop variable and update it each iteration to avoid infinite loops.',
+            ['while loop', 'increment', 'counter', 'loop variable'],
+            ['basic while', 'counter loop'],
+            `limit = 6
+n = 2
+while n <= limit:
+    print(n)
+    n += 1`
+        ),
+        makeDoc(
+            'lr-09',
+            'Loops & range()',
+            'L2',
+            'while True + break for time-budget loops',
+            'Use an open-ended loop and break once the benchmark window expires.',
+            ['while true', 'break', 'time budget', 'sentinel loop'],
+            ['infinite loop break', 'budget loop'],
+            `import time
+
+start = time.perf_counter()
+checks = 0
+while True:
+    checks += 1
+    if time.perf_counter() - start >= 1.0:
+        break
+print(checks)`
+        ),
+        makeDoc(
+            'lr-10',
+            'Loops & range()',
+            'L2',
+            'Nested loops for trial division',
+            'A classic pattern: outer loop for candidates, inner loop for divisors.',
+            ['nested loops', 'trial division', 'divisor loop', 'for loop'],
+            ['double loop', 'candidate divisor loops'],
+            `limit = 20
+for n in range(2, limit + 1):
+    is_prime = True
+    for d in range(2, int(n ** 0.5) + 1):
+        if n % d == 0:
+            is_prime = False
+            break
+    if is_prime:
+        print(n)`
+        ),
+        makeDoc(
+            'lr-11',
+            'Loops & range()',
+            'L1',
+            'range(len(seq)) indexing pattern',
+            'Use index-based loops when you need element positions.',
+            ['range len', 'indexing', 'sequence', 'for loop'],
+            ['index loop', 'position loop'],
+            `primes = [2, 3, 5, 7]
+for i in range(len(primes)):
+    if primes[i] % 2 == 1:
+        print(i, primes[i])`
+        ),
+        makeDoc(
+            'lr-12',
+            'Loops & range()',
+            'L1',
+            'Loop over dict .items() key-value pairs',
+            'items() provides key and value in one unpacking step.',
+            ['dict items', 'mapping loop', 'key value', 'for loop'],
+            ['iterate dict', 'key value loop'],
+            `factor_hits = {2: 5, 3: 4, 5: 2}
+for prime, count in factor_hits.items():
+    print(f"{prime}: {count}")`
+        ),
+        makeDoc(
+            'lr-13',
+            'Loops & range()',
+            'L2',
+            'Early continue to skip obvious composites',
+            'continue keeps the hot path flatter by skipping work quickly.',
+            ['continue', 'composite skip', 'loop control', 'odd candidates'],
+            ['skip composite', 'early continue'],
+            `limit = 20
+for n in range(2, limit + 1):
+    if n % 2 == 0 and n != 2:
+        continue
+    print(n)`
+        ),
+        makeDoc(
+            'lr-14',
+            'Loops & range()',
+            'L2',
+            'Early break on first divisor with a flag',
+            'Track primality with a flag and stop divisor scanning early.',
+            ['break', 'flag variable', 'divisor test', 'loop exit'],
+            ['early break flag', 'first divisor break'],
+            `n = 91
+is_prime = True
+for d in range(2, int(n ** 0.5) + 1):
+    if n % d == 0:
+        is_prime = False
+        break
+print(is_prime)`
+        ),
+        makeDoc(
+            'lr-15',
+            'Loops & range()',
+            'L2',
+            'Track count and highest value in one loop',
+            'Maintain multiple aggregates during one pass over candidates.',
+            ['counting loop', 'max tracking', 'aggregates', 'loop state'],
+            ['count and max', 'single pass stats'],
+            `candidates = [2, 3, 4, 5, 9, 11]
+prime_like_count = 0
+highest_seen = 0
+for n in candidates:
+    if n % 2 == 1 or n == 2:
+        prime_like_count += 1
+        highest_seen = max(highest_seen, n)
+print(prime_like_count, highest_seen)`
+        ),
+        makeDoc(
+            'lr-16',
+            'Loops & range()',
+            'L1',
+            'Use reversed() for descending scans',
+            'reversed(range(...)) is an explicit way to scan from high to low.',
+            ['reversed', 'descending', 'reverse scan', 'range'],
+            ['reverse iterate', 'descending loop'],
+            `limit = 20
+for n in reversed(range(2, limit + 1)):
+    if n % 2 == 1:
+        print(n)
+        break`
+        ),
+        makeDoc(
+            'lr-17',
+            'Loops & range()',
+            'L1',
+            'Use pass as a loop scaffold placeholder',
+            'pass marks intentionally empty blocks while sketching control flow.',
+            ['pass', 'placeholder', 'loop scaffold', 'control flow'],
+            ['noop statement', 'pass keyword'],
+            `for n in range(2, 8):
+    if n < 5:
+        pass
+    else:
+        print(n)`
+        ),
+        makeDoc(
+            'lr-18',
+            'Loops & range()',
+            'L2',
+            'while ... else for no-break success flow',
+            'The else block runs only when the while loop ends without break.',
+            ['while else', 'no break', 'prime pattern', 'control flow'],
+            ['loop else', 'while no break'],
+            `n = 97
+d = 2
+while d * d <= n:
+    if n % d == 0:
+        print("composite")
+        break
+    d += 1
+else:
+    print("prime-like")`
         )
     ];
 
@@ -1806,6 +1988,221 @@ else:
     print("parsed:", value)
 finally:
     print("done")`
+        ),
+        makeDoc(
+            'cs-09',
+            'Core Python Syntax',
+            'L1',
+            'Assignment and augmented assignment operators',
+            'Use = for assignment and +=, -=, *= for compact state updates.',
+            ['assignment', 'augmented assignment', '+=', 'operators'],
+            ['compound assignment', 'state updates'],
+            `score = 0
+score += 2
+score -= 1
+score *= 3
+print(score)`
+        ),
+        makeDoc(
+            'cs-10',
+            'Core Python Syntax',
+            'L1',
+            'Comparison operators and boolean logic',
+            'Combine comparisons with and/or/not to build precise conditions.',
+            ['comparison', 'boolean logic', 'and or not', 'operators'],
+            ['logical operators', 'bool expressions'],
+            `n = 29
+is_candidate = n > 1 and n % 2 != 0
+is_small_or_even = n < 10 or n % 2 == 0
+print(is_candidate, not is_small_or_even)`
+        ),
+        makeDoc(
+            'cs-11',
+            'Core Python Syntax',
+            'L1',
+            'Single-branch if guard',
+            'Use a one-branch guard when only one condition needs handling.',
+            ['if statement', 'guard', 'control flow', 'branch'],
+            ['single if', 'guard clause'],
+            `n = 1
+if n < 2:
+    print("not prime")`
+        ),
+        makeDoc(
+            'cs-12',
+            'Core Python Syntax',
+            'L2',
+            'Nested if with early return pattern',
+            'Return early inside nested branches to keep later logic simpler.',
+            ['nested if', 'early return', 'branching', 'function flow'],
+            ['if nesting', 'return pattern'],
+            `def classify(n: int) -> str:
+    if n < 2:
+        return "non-prime"
+    if n % 2 == 0:
+        if n == 2:
+            return "prime"
+        return "composite"
+    return "candidate"`
+        ),
+        makeDoc(
+            'cs-13',
+            'Core Python Syntax',
+            'L1',
+            'Conditional expression (x if cond else y)',
+            'Inline conditional expressions are compact for simple value selection.',
+            ['conditional expression', 'ternary', 'if else expression', 'assignment'],
+            ['inline if', 'ternary operator'],
+            `n = 11
+label = "prime" if n in {2, 3, 5, 7, 11} else "candidate"
+print(label)`
+        ),
+        makeDoc(
+            'cs-14',
+            'Core Python Syntax',
+            'L1',
+            'Function parameters: positional, keyword, defaults',
+            'Combine positional and keyword arguments with defaults for flexible APIs.',
+            ['function args', 'default args', 'keyword args', 'parameters'],
+            ['positional args', 'function signature'],
+            `def scan(limit: int, start: int = 2, step: int = 1) -> None:
+    for n in range(start, limit + 1, step):
+        print(n)
+
+scan(8, step=2)`
+        ),
+        makeDoc(
+            'cs-15',
+            'Core Python Syntax',
+            'L2',
+            '*args and **kwargs helper wrapper',
+            'Variadic parameters are useful for lightweight wrappers and adapters.',
+            ['*args', '**kwargs', 'function args', 'wrapper'],
+            ['variadic args', 'kwargs wrapper'],
+            `def run_checks(*nums: int, **opts: int) -> None:
+    step = opts.get("step", 1)
+    for n in nums[::step]:
+        print(n)
+
+run_checks(2, 3, 5, 7, step=2)`
+        ),
+        makeDoc(
+            'cs-16',
+            'Core Python Syntax',
+            'L2',
+            'Local/nonlocal scope in closures',
+            'Use nonlocal to update closure state across repeated calls.',
+            ['nonlocal', 'scope', 'closure', 'nested function'],
+            ['closure state', 'scope rules'],
+            `def make_counter():
+    total = 0
+    def add_one():
+        nonlocal total
+        total += 1
+        return total
+    return add_one`
+        ),
+        makeDoc(
+            'cs-17',
+            'Core Python Syntax',
+            'L1',
+            'Import forms: import, from, and alias as',
+            'Use module imports, symbol imports, and aliasing based on readability needs.',
+            ['import', 'from import', 'as alias', 'module'],
+            ['import syntax', 'module alias'],
+            `import math
+from collections import deque as Deque
+
+root = math.isqrt(97)
+q = Deque([root])
+print(q[0])`
+        ),
+        makeDoc(
+            'cs-18',
+            'Core Python Syntax',
+            'L1',
+            'with open(...) for file read/write',
+            'Context managers ensure files close cleanly even if errors occur.',
+            ['with open', 'file io', 'context manager', 'read write'],
+            ['file handling', 'open as'],
+            `path = "primes.txt"
+with open(path, "w", encoding="utf-8") as fh:
+    fh.write("2,3,5,7\\n")
+with open(path, "r", encoding="utf-8") as fh:
+    data = fh.read().strip()
+print(data)`
+        ),
+        makeDoc(
+            'cs-19',
+            'Core Python Syntax',
+            'L2',
+            'match/case command branching',
+            'Pattern matching is a readable switch-like branch for fixed commands.',
+            ['match case', 'pattern matching', 'branching', 'python 3.10'],
+            ['switch style', 'case statement'],
+            `def action_for(cmd: str) -> str:
+    match cmd:
+        case "next":
+            return "advance candidate"
+        case "reset":
+            return "restart scan"
+        case _:
+            return "unknown"`
+        ),
+        makeDoc(
+            'cs-20',
+            'Core Python Syntax',
+            'L1',
+            'Set comprehension for unique filtered values',
+            'Set comprehensions build deduplicated collections in one expression.',
+            ['set comprehension', 'set', 'comprehension', 'filter'],
+            ['setcomp', 'unique comprehension'],
+            `odd_candidates = {n for n in range(2, 20) if n % 2 == 1}
+print(sorted(odd_candidates)[:5])`
+        ),
+        makeDoc(
+            'cs-21',
+            'Core Python Syntax',
+            'L2',
+            'Generator expression vs list comprehension',
+            'Use generator expressions for streaming counts and list comps for materialized data.',
+            ['generator expression', 'list comprehension', 'memory', 'sum'],
+            ['genexp', 'list vs generator'],
+            `nums = range(2, 20)
+odd_list = [n for n in nums if n % 2 == 1]
+odd_count = sum(1 for n in nums if n % 2 == 1)
+print(len(odd_list), odd_count)`
+        ),
+        makeDoc(
+            'cs-22',
+            'Core Python Syntax',
+            'L2',
+            'yield generator for odd candidate stream',
+            'yield enables lazy candidate generation without building full lists.',
+            ['yield', 'generator', 'lazy sequence', 'candidate stream'],
+            ['yield syntax', 'odd generator'],
+            `def odd_candidates(limit: int):
+    n = 3
+    while n <= limit:
+        yield n
+        n += 2
+
+print(list(odd_candidates(11)))`
+        ),
+        makeDoc(
+            'cs-23',
+            'Core Python Syntax',
+            'L2',
+            '@dataclass for prime run settings',
+            'Dataclasses provide compact classes for structured configuration data.',
+            ['dataclass', 'class syntax', 'config object', 'type hints'],
+            ['@dataclass', 'simple class'],
+            `from dataclasses import dataclass
+
+@dataclass
+class PrimeRun:
+    limit: int
+    step: int = 2`
         )
     ];
 
@@ -1882,6 +2279,113 @@ if 13 not in seen:
             `vals = [10, 3, 21, 14]
 by_last_digit = sorted(vals, key=lambda x: x % 10)
 descending = sorted(vals, reverse=True)`
+        ),
+        makeDoc(
+            'bi-07',
+            'Builtins & Iteration',
+            'L1',
+            'len() and indexing essentials',
+            'len and index access are foundational for sequence-based algorithms.',
+            ['len', 'indexing', 'list access', 'builtins'],
+            ['length', 'sequence index'],
+            `primes = [2, 3, 5, 7]
+print(len(primes))
+print(primes[0], primes[-1])`
+        ),
+        makeDoc(
+            'bi-08',
+            'Builtins & Iteration',
+            'L1',
+            'append / extend / pop list workflow',
+            'These list methods cover common push, batch-add, and remove patterns.',
+            ['append', 'extend', 'pop', 'list methods'],
+            ['list push pop', 'grow list'],
+            `primes = [2, 3]
+primes.append(5)
+primes.extend([7, 11])
+last = primes.pop()
+print(primes, last)`
+        ),
+        makeDoc(
+            'bi-09',
+            'Builtins & Iteration',
+            'L2',
+            'dict.get and setdefault for counters/cache',
+            'get and setdefault simplify dictionary counting and lazy initialization.',
+            ['dict get', 'setdefault', 'dictionary', 'counter'],
+            ['dict cache', 'safe lookup'],
+            `hits = {}
+for n in [2, 3, 2, 5, 3, 2]:
+    hits[n] = hits.get(n, 0) + 1
+cache = {}
+cache.setdefault(97, True)
+print(hits[2], cache[97])`
+        ),
+        makeDoc(
+            'bi-10',
+            'Builtins & Iteration',
+            'L2',
+            'Set algebra with union, intersection, difference',
+            'Use |, &, and - to compare or merge candidate sets quickly.',
+            ['set algebra', 'union', 'intersection', 'difference'],
+            ['set operators', 'set math'],
+            `a = {2, 3, 5, 7}
+b = {5, 7, 11, 13}
+print(a | b)
+print(a & b)
+print(b - a)`
+        ),
+        makeDoc(
+            'bi-11',
+            'Builtins & Iteration',
+            'L1',
+            'divmod() quotient and remainder pair',
+            'divmod computes quotient and remainder together in one call.',
+            ['divmod', 'quotient remainder', 'builtins', 'numeric'],
+            ['quotient', 'remainder pair'],
+            `n = 97
+q, r = divmod(n, 10)
+print(q, r)`
+        ),
+        makeDoc(
+            'bi-12',
+            'Builtins & Iteration',
+            'L1',
+            'abs() and numeric helper builtins',
+            'abs pairs well with min/max key functions for distance-based choices.',
+            ['abs', 'numeric helpers', 'min key', 'distance'],
+            ['absolute value', 'distance calc'],
+            `delta = abs(97 - 100)
+closest = min([89, 97, 101], key=lambda x: abs(x - 100))
+print(delta, closest)`
+        ),
+        makeDoc(
+            'bi-13',
+            'Builtins & Iteration',
+            'L2',
+            'itertools.islice() to limit generator streams',
+            'islice takes only the first N values without exhausting all input.',
+            ['itertools', 'islice', 'generator', 'limit stream'],
+            ['slice generator', 'take n'],
+            `from itertools import islice
+
+odds = (n for n in range(3, 100, 2))
+print(list(islice(odds, 5)))`
+        ),
+        makeDoc(
+            'bi-14',
+            'Builtins & Iteration',
+            'L2',
+            'collections.deque for queue processing',
+            'deque supports fast append/popleft operations for FIFO workflows.',
+            ['deque', 'queue', 'collections', 'popleft'],
+            ['double ended queue', 'fifo'],
+            `from collections import deque
+
+queue = deque([2, 3, 5])
+queue.append(7)
+first = queue.popleft()
+print(first, list(queue))`
         )
     ];
 
@@ -1993,9 +2497,9 @@ def bench(fn, runs=5):
         'Sieve Patterns': 10,
         'Memory & Cache': 8,
         'Bitwise & Numeric Ops': 6,
-        'Loops & range()': 6,
-        'Core Python Syntax': 8,
-        'Builtins & Iteration': 6,
+        'Loops & range()': 18,
+        'Core Python Syntax': 23,
+        'Builtins & Iteration': 14,
         'Timing/Debug/Validation': 6
     };
 
@@ -2013,7 +2517,27 @@ def bench(fn, runs=5):
         ['comprehesion', ['comprehension', 'list comprehension', 'dict comprehension']],
         ['comprehension', ['list comprehension', 'dict comprehension']],
         ['timing', ['benchmark', 'perf_counter', 'timeit']],
-        ['bit mask', ['bitwise', 'set bit', 'clear bit']]
+        ['bit mask', ['bitwise', 'set bit', 'clear bit']],
+        ['for loop', ['for', 'loop', 'iteration']],
+        ['while loop', ['while', 'while true', 'loop condition']],
+        ['if statement', ['if', 'elif', 'else', 'conditional']],
+        ['conditional', ['if statement', 'branching', 'ternary', 'condition']],
+        ['function args', ['parameters', 'arguments', 'default args', 'kwargs']],
+        ['default args', ['function defaults', 'keyword args', 'optional parameters']],
+        ['kwargs', ['**kwargs', 'keyword arguments', 'function args']],
+        ['dictionary', ['dict', 'mapping', 'hash map']],
+        ['dict', ['dictionary', 'mapping', 'key value']],
+        ['set comprehension', ['setcomp', 'comprehension set', 'set builder']],
+        ['generator', ['yield', 'generator expression', 'lazy iteration']],
+        ['yield', ['generator', 'lazy sequence', 'yield keyword']],
+        ['with open', ['file io', 'context manager', 'open file']],
+        ['file io', ['with open', 'read write file', 'filesystem']],
+        ['dataclass', ['class', '@dataclass', 'data class']],
+        ['class', ['dataclass', 'object', 'type definition']],
+        ['snytax', ['syntax', 'python syntax']],
+        ['whlie', ['while', 'while loop']],
+        ['conditonal', ['conditional', 'if statement']],
+        ['snippit', ['snippet', 'code snippet']]
     ]);
 
     function normalizeText(text) {
@@ -2126,8 +2650,8 @@ def bench(fn, runs=5):
     }
 
     function validateDocsCorpus() {
-        if (pythonDocs.length !== 60) {
-            console.warn(`pythonDocs length mismatch: expected 60, got ${pythonDocs.length}`);
+        if (pythonDocs.length !== 95) {
+            console.warn(`pythonDocs length mismatch: expected 95, got ${pythonDocs.length}`);
         }
 
         const categoryCounts = {};
