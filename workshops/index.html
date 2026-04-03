@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshops Archive | Computer Hardware Club</title>
+    <meta name="description" content="Archived Computer Hardware Club workshop guides.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239c5f2d'/%3E%3Cpath d='M20 20h24v24H20z' fill='%23f4efe7' opacity='.92'/%3E%3Cpath d='M26 26h12v12H26z' fill='%239c5f2d'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #101112;
+            --bg-soft: #181a1c;
+            --panel: rgba(24, 26, 28, 0.78);
+            --panel-strong: rgba(28, 31, 34, 0.92);
+            --text: #f2ede8;
+            --text-soft: #b6ada4;
+            --border: rgba(255, 244, 234, 0.1);
+            --accent: #d77b3f;
+            --accent-soft: rgba(215, 123, 63, 0.14);
+            --shadow: 0 24px 54px rgba(0, 0, 0, 0.32);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "IBM Plex Sans", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(215, 123, 63, 0.12), transparent 26%),
+                radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.05), transparent 20%),
+                linear-gradient(180deg, #0e0f10 0%, #141618 100%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .shell {
+            width: min(1080px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 28px 0 56px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 46px;
+        }
+
+        .pill,
+        .eyebrow,
+        .meta {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pill::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 6px var(--accent-soft);
+        }
+
+        .back-link {
+            color: var(--text-soft);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            font-size: clamp(2.6rem, 6vw, 4.6rem);
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+            margin: 16px 0 18px;
+        }
+
+        .hero p {
+            max-width: 560px;
+            color: var(--text-soft);
+            line-height: 1.75;
+            font-size: 1.04rem;
+        }
+
+        .hero-note {
+            padding: 24px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(23, 25, 28, 0.72), rgba(18, 19, 21, 0.92));
+            box-shadow: var(--shadow);
+        }
+
+        .hero-note p {
+            color: var(--text-soft);
+            line-height: 1.75;
+        }
+
+        .eyebrow {
+            color: var(--accent);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            padding: 24px;
+            border-radius: 26px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+
+        .card:hover,
+        .card:focus-visible {
+            transform: translateY(-4px);
+            border-color: rgba(255, 244, 234, 0.18);
+            background: var(--panel-strong);
+        }
+
+        .card:focus-visible {
+            outline: 2px solid rgba(215, 123, 63, 0.35);
+            outline-offset: 4px;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            letter-spacing: -0.03em;
+            margin: 12px 0 10px;
+        }
+
+        .card p {
+            color: var(--text-soft);
+            line-height: 1.72;
+            min-height: 84px;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0 18px;
+        }
+
+        .meta {
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .open {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+        }
+
+        footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            color: var(--text-soft);
+        }
+
+        @media (max-width: 860px) {
+            .hero,
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .shell {
+                width: min(calc(100% - 24px), 1080px);
+                padding-top: 16px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card,
+            .hero-note {
+                border-radius: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div class="topbar">
+            <div class="pill">Workshop Archive</div>
+            <a class="back-link" href="/">Back to hub</a>
+        </div>
+
+        <section class="hero">
+            <div>
+                <div class="eyebrow">Computer Hardware Club</div>
+                <h1>Archived workshop guides.</h1>
+                <p>Finished workshop pages live here as a small library instead of being buried in a miscellaneous folder. Each guide keeps its own style and still stands on its own.</p>
+            </div>
+            <aside class="hero-note">
+                <div class="eyebrow">Currently in archive</div>
+                <p>Two workshop pages are live right now: a Python optimization challenge and a troubleshooting guide built around repairing a broken Nginx setup.</p>
+            </aside>
+        </section>
+
+        <main class="cards">
+            <a class="card" href="./primes.html">
+                <div class="eyebrow">Workshop 01</div>
+                <h2>1-Second Prime Showdown</h2>
+                <p>A high-energy optimization workshop focused on writing faster Python for a one-second prime-counting challenge, complete with the offline reference guide built into the page.</p>
+                <div class="meta-row">
+                    <span class="meta">Python</span>
+                    <span class="meta">Optimization</span>
+                    <span class="meta">Reference heavy</span>
+                </div>
+                <div class="open">Open workshop -></div>
+            </a>
+
+            <a class="card" href="./troubleshoot.html">
+                <div class="eyebrow">Workshop 02</div>
+                <h2>Troubleshooting Workshop</h2>
+                <p>A terminal-themed workshop guide for diagnosing and repairing a broken local Nginx installation, with a crash course on services, permissions, logs, and debugging flow.</p>
+                <div class="meta-row">
+                    <span class="meta">Linux</span>
+                    <span class="meta">Nginx</span>
+                    <span class="meta">Hands-on debugging</span>
+                </div>
+                <div class="open">Open workshop -></div>
+            </a>
+        </main>
+
+        <footer>Archived guides stay lightweight and directly linked so the site remains simple to host on plain GitHub Pages.</footer>
+    </div>
+</body>
+</html>

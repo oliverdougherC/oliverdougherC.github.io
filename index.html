@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Hardware Club Hub</title>
+    <meta name="description" content="A polished hub for Computer Hardware Club workshop guides and practical browser utilities.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239c5f2d'/%3E%3Cpath d='M20 20h24v24H20z' fill='%23f4efe7' opacity='.92'/%3E%3Cpath d='M26 26h12v12H26z' fill='%239c5f2d'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4efe7;
+            --bg-deep: #e8ddcf;
+            --surface: rgba(255, 252, 246, 0.74);
+            --surface-strong: rgba(255, 251, 244, 0.9);
+            --border: rgba(68, 49, 35, 0.12);
+            --border-strong: rgba(68, 49, 35, 0.2);
+            --text: #241912;
+            --text-soft: #6b594d;
+            --accent: #9c5f2d;
+            --accent-soft: rgba(156, 95, 45, 0.12);
+            --shadow: 0 20px 50px rgba(58, 36, 24, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "IBM Plex Sans", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(212, 170, 130, 0.22), transparent 34%),
+                radial-gradient(circle at 82% 22%, rgba(165, 112, 67, 0.12), transparent 28%),
+                linear-gradient(180deg, #f7f1e9 0%, #efe6da 55%, #eadfcf 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.2;
+            background-image: linear-gradient(rgba(52, 34, 24, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(52, 34, 24, 0.03) 1px, transparent 1px);
+            background-size: 22px 22px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 92%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 28px 0 56px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .eyebrow,
+        .status-pill,
+        .card-kicker {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.4);
+            color: var(--text-soft);
+            backdrop-filter: blur(18px);
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 6px rgba(156, 95, 45, 0.12);
+        }
+
+        .status-pill {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+            background: rgba(255, 255, 255, 0.44);
+            backdrop-filter: blur(18px);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            gap: 26px;
+            align-items: end;
+            margin-bottom: 28px;
+        }
+
+        .hero-copy {
+            padding: 10px 0 18px;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 7vw, 5.6rem);
+            line-height: 0.92;
+            letter-spacing: -0.06em;
+            margin: 18px 0 22px;
+        }
+
+        .hero-copy p {
+            max-width: 560px;
+            font-size: 1.08rem;
+            line-height: 1.7;
+            color: var(--text-soft);
+        }
+
+        .hero-panel {
+            padding: 24px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255, 252, 247, 0.76), rgba(248, 241, 232, 0.94));
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
+        }
+
+        .hero-panel .card-kicker {
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+
+        .hero-panel p {
+            color: var(--text-soft);
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .hero-panel ul {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+            color: var(--text-soft);
+        }
+
+        .hero-panel li {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(68, 49, 35, 0.08);
+        }
+
+        .hero-panel span:last-child {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 26px;
+        }
+
+        .hub-card {
+            position: relative;
+            min-height: 280px;
+            padding: 24px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        }
+
+        .hub-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background: linear-gradient(140deg, rgba(255, 255, 255, 0.38), transparent 38%);
+            opacity: 0.85;
+        }
+
+        .hub-card.interactive:hover,
+        .hub-card.interactive:focus-visible {
+            transform: translateY(-4px);
+            border-color: var(--border-strong);
+            box-shadow: 0 24px 56px rgba(58, 36, 24, 0.12);
+            background: var(--surface-strong);
+        }
+
+        .hub-card.interactive:focus-visible {
+            outline: 2px solid rgba(156, 95, 45, 0.4);
+            outline-offset: 4px;
+        }
+
+        .hub-card h2 {
+            font-size: 1.52rem;
+            letter-spacing: -0.03em;
+            margin: 14px 0 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hub-card p,
+        .hub-card ul {
+            position: relative;
+            z-index: 1;
+            color: var(--text-soft);
+            line-height: 1.7;
+        }
+
+        .hub-card ul {
+            list-style: none;
+            display: grid;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 18px;
+        }
+
+        .hub-card li {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(68, 49, 35, 0.08);
+            font-size: 0.95rem;
+        }
+
+        .hub-card strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .card-kicker {
+            color: var(--accent);
+        }
+
+        .card-arrow {
+            margin-top: auto;
+            padding-top: 20px;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 28px;
+            padding-top: 18px;
+            color: var(--text-soft);
+            border-top: 1px solid rgba(68, 49, 35, 0.08);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 940px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hub-card {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .shell {
+                width: min(calc(100% - 24px), 1120px);
+                padding-top: 16px;
+            }
+
+            h1 {
+                font-size: 2.4rem;
+                line-height: 0.96;
+                max-width: 8ch;
+            }
+
+            .topbar,
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero-panel,
+            .hub-card {
+                border-radius: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div class="topbar">
+            <div class="eyebrow">Computer Hardware Club</div>
+            <div class="status-pill">Static GitHub Pages Hub</div>
+        </div>
+
+        <section class="hero" aria-labelledby="site-title">
+            <div class="hero-copy">
+                <div class="card-kicker">Root Menu</div>
+                <h1 id="site-title">Workshop guides and useful little tools.</h1>
+                <p>A quiet front door for club material: archived workshops and polished browser utilities for quick demos, club nights, and small practical tasks.</p>
+            </div>
+            <aside class="hero-panel" aria-label="Current scope">
+                <div class="card-kicker">Currently Live</div>
+                <p>The site gives the club one clean place for finished workshops and practical tools people can actually use during meetings, build nights, and quick experiments.</p>
+                <ul>
+                    <li><span>Workshop archive</span><span>2 guides</span></li>
+                    <li><span>Utilities page</span><span>5 tools</span></li>
+                    <li><span>Quick-use tools</span><span>Ready now</span></li>
+                </ul>
+            </aside>
+        </section>
+
+        <main class="card-grid" aria-label="Site sections">
+            <a class="hub-card interactive" href="/workshops/">
+                <div class="card-kicker">01 / Archive</div>
+                <h2>Workshops</h2>
+                <p>Browse the finished workshop guides without making one of them carry the whole site.</p>
+                <ul>
+                    <li><span>Prime Showdown</span><strong>Python optimization guide</strong></li>
+                    <li><span>Troubleshooting</span><strong>Nginx debugging workshop</strong></li>
+                </ul>
+                <div class="card-arrow">Open archive -&gt;</div>
+            </a>
+
+            <a class="hub-card interactive" href="/utilities/">
+                <div class="card-kicker">02 / Tools</div>
+                <h2>Utilities</h2>
+                <p>Small browser utilities that are easier to keep here than to hunt down on random third-party sites.</p>
+                <ul>
+                    <li><span>QR generator</span><strong>Live preview + download</strong></li>
+                    <li><span>Clock, stopwatch &amp; timer</span><strong>Keep sessions moving</strong></li>
+                    <li><span>Random number generator</span><strong>5 total tools</strong></li>
+                </ul>
+                <div class="card-arrow">Open utilities -&gt;</div>
+            </a>
+
+            <a class="hub-card interactive" href="/utilities/">
+                <div class="card-kicker">03 / Quick tools</div>
+                <h2>Quick Tools</h2>
+                <p>The remaining utility set stays focused: timing tools, quick randomness, and a local QR generator in one static page.</p>
+                <ul>
+                    <li><span>Live Clock</span><strong>Timezone-aware readout</strong></li>
+                    <li><span>Stopwatch &amp; Timer</span><strong>Two ways to track a session</strong></li>
+                    <li><span>Random number generator</span><strong>Fast picks inside a range</strong></li>
+                </ul>
+                <div class="card-arrow">Open quick tools -&gt;</div>
+            </a>
+        </main>
+
+        <footer class="footer">
+            <span>Computer Hardware Club</span>
+            <span>Built as a simple static hub for GitHub Pages.</span>
+        </footer>
+    </div>
+</body>
+</html>
