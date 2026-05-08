@@ -140,7 +140,7 @@
             </div>
         </div>
 
-        <section class="space-y-4">
+        <section class="space-y-4" id="instructions-section">
             <div class="objective-card p-4 rounded-lg bg-[#161b22] border border-[#30363d] shadow-lg relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-[#d77b3f]"></div>
                 <h2 class="text-xl font-bold accent-orange mb-2 flex items-center">
@@ -181,7 +181,7 @@
         </section>
 
         <section class="space-y-4" id="build-form-section">
-            <div class="p-4 rounded-lg code-block relative overflow-hidden">
+            <div class="p-4 rounded-lg code-block relative overflow-hidden" id="timer-card">
                 <div class="absolute top-0 left-0 w-1 h-full bg-[#bc8cff]"></div>
                 <h3 class="text-sm font-bold text-[#bc8cff] mb-3 flex items-center">
                     <i data-lucide="timer" class="w-4 h-4 mr-2"></i> Workshop Timer
@@ -209,7 +209,7 @@
                 <h2 class="text-xl font-bold terminal-green build-h2 flex items-center">
                     <i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Part Tracker
                 </h2>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2" id="action-buttons">
                     <button onclick="copyShareableLink()" class="text-xs terminal-border px-3 py-1.5 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" id="share-btn" aria-label="Copy shareable link for your build">
                         <i data-lucide="link-2" class="w-3.5 h-3.5"></i> Copy Shareable Link
                     </button>
@@ -253,6 +253,14 @@
                     </div>
                     <div id="total-display" class="text-3xl md:text-4xl font-bold accent-orange tabular-nums" aria-label="Total build cost">$0.00</div>
                 </div>
+            </div>
+
+            <div id="summary-card" class="hidden p-4 rounded-lg code-block relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-[#d77b3f]"></div>
+                <h3 class="text-sm font-bold accent-orange mb-3 flex items-center">
+                    <i data-lucide="clipboard-list" class="w-4 h-4 mr-2"></i> Summary
+                </h3>
+                <ul id="summary-list" class="text-xs text-gray-400 space-y-2 list-none"></ul>
             </div>
         </section>
 
@@ -729,6 +737,9 @@
                 const build = JSON.parse(decoded);
 
                 isViewingMode = true;
+                document.getElementById('instructions-section').style.display = 'none';
+                document.getElementById('timer-card').style.display = 'none';
+                document.getElementById('action-buttons').style.display = 'none';
                 document.getElementById('team-name').value = build.team || '';
                 document.getElementById('server-name').value = build.server || '';
                 document.getElementById('team-name').readOnly = true;
@@ -773,10 +784,45 @@
                 }
 
                 updateTotal();
+                renderSummary(build.parts || []);
                 flushLucideRefresh();
             } catch (e) {
                 console.warn('Failed to load build from hash', e);
                 showToast('Could not load shared build.', '#f85149');
+            }
+        }
+
+        function renderSummary(parts) {
+            var summaryCard = document.getElementById('summary-card');
+            var summaryList = document.getElementById('summary-list');
+            summaryList.innerHTML = '';
+            var hasItems = false;
+            for (var i = 0; i < parts.length; i++) {
+                var part = parts[i];
+                if (!part.name) continue;
+                var label = FIXED_SLOTS.map(function (s) { return s.key; }).indexOf(part.key) !== -1
+                    ? FIXED_SLOTS.find(function (s) { return s.key === part.key; }).label
+                    : (part.customLabel || part.key);
+                var li = document.createElement('li');
+                li.className = 'flex items-start gap-2';
+                var labelSpan = document.createElement('span');
+                labelSpan.className = 'terminal-green font-bold';
+                labelSpan.textContent = label;
+                var colonSpan = document.createElement('span');
+                colonSpan.textContent = ': ';
+                var nameSpan = document.createElement('span');
+                nameSpan.className = 'text-gray-300';
+                nameSpan.textContent = part.name;
+                li.appendChild(labelSpan);
+                li.appendChild(colonSpan);
+                li.appendChild(nameSpan);
+                summaryList.appendChild(li);
+                hasItems = true;
+            }
+            if (hasItems) {
+                summaryCard.classList.remove('hidden');
+            } else {
+                summaryCard.classList.add('hidden');
             }
         }
 
