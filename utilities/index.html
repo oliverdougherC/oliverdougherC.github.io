@@ -9,336 +9,332 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #121416;
-            --bg-soft: #181c1f;
-            --surface: rgba(28, 32, 35, 0.78);
-            --surface-strong: rgba(34, 39, 43, 0.92);
-            --surface-accent: rgba(194, 130, 78, 0.12);
-            --text: #f4efe9;
-            --text-soft: #b8afa4;
-            --border: rgba(255, 245, 234, 0.1);
+            --bg: #0c0c0c;
+            --surface: rgba(18, 18, 18, 0.95);
+            --text: #cccccc;
+            --text-dim: #707070;
+            --text-bright: #ffffff;
+            --green: #5af78e;
+            --green-dim: #2e7d46;
+            --cyan: #8be9fd;
+            --yellow: #f1fa8c;
+            --red: #ff5555;
+            --magenta: #ff79c6;
+            --blue: #6272a4;
             --accent: #c2824e;
-            --accent-strong: #e9a366;
-            --success: #77ca8b;
-            --danger: #f08a7b;
-            --shadow: 0 24px 54px rgba(0, 0, 0, 0.34);
+            --accent-bright: #e9a366;
+            --border: rgba(255, 255, 255, 0.08);
+            --selection: rgba(90, 247, 142, 0.12);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             min-height: 100vh;
-            font-family: "IBM Plex Sans", sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at 10% 0%, rgba(194, 130, 78, 0.14), transparent 24%),
-                radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.05), transparent 18%),
-                linear-gradient(180deg, #101214 0%, #171a1d 100%);
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        button,
-        input,
-        select,
-        textarea {
-            font: inherit;
-        }
-
-        button {
-            border: none;
-            cursor: pointer;
-        }
-
-        .shell {
-            width: min(1180px, calc(100% - 40px));
-            margin: 0 auto;
-            padding: 28px 0 56px;
-        }
-
-        .topbar,
-        .hero,
-        .tool-grid,
-        .row {
-            display: grid;
-            gap: 18px;
-        }
-
-        .topbar {
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            margin-bottom: 34px;
-        }
-
-        .pill,
-        .eyebrow,
-        .tiny {
             font-family: "IBM Plex Mono", monospace;
-            font-size: 0.72rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
         }
 
-        .pill {
-            display: inline-flex;
+        a { color: var(--cyan); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        button, input, select, textarea { font: inherit; }
+
+        button { border: none; cursor: pointer; }
+
+        ::selection {
+            background: var(--selection);
+            color: var(--green);
+        }
+
+        .terminal-window {
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .title-bar {
+            display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
-            color: var(--text-soft);
+            padding: 8px 14px;
+            background: #1a1a1a;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-dim);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .pill::before {
-            content: "";
-            width: 8px;
-            height: 8px;
+        .title-bar-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .title-bar-dots span {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 0 6px rgba(194, 130, 78, 0.14);
         }
 
-        .top-links {
-            justify-self: end;
+        .title-bar-dots .dot-close { background: #ff5f56; }
+        .title-bar-dots .dot-min { background: #ffbd2e; }
+        .title-bar-dots .dot-max { background: #27c93f; }
+
+        .title-bar-text {
+            flex: 1;
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        .title-bar-nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .title-bar-nav a {
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        .title-bar-nav a:hover { color: var(--text); }
+
+        .terminal-body {
+            padding: 16px 20px 40px;
+        }
+
+        .motd {
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .prompt {
+            color: var(--green);
+            white-space: nowrap;
+        }
+
+        .prompt .user { color: var(--green); }
+        .prompt .at { color: var(--text-dim); }
+        .prompt .host { color: var(--cyan); }
+        .prompt .sep { color: var(--text-dim); }
+        .prompt .path { color: var(--magenta); }
+        .prompt .dollar { color: var(--text); }
+
+        .cmd { color: var(--yellow); }
+
+        .output-block {
+            margin: 4px 0 20px 0;
+            padding: 0;
+        }
+
+        .section-divider {
+            margin: 24px 0 8px;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        .section-divider::before {
+            content: "─── ";
+        }
+
+        .section-divider::after {
+            content: " ───────────────────────────────────────────";
+        }
+
+        .tool-block {
+            margin: 0 0 28px 0;
+            padding: 12px 0;
+        }
+
+        .tool-header {
+            color: var(--accent-bright);
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .tool-desc {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .field-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 14px;
-            color: var(--text-soft);
+            gap: 12px;
+            margin-bottom: 8px;
         }
 
-        .hero {
-            grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-size: clamp(2.8rem, 6.5vw, 4.9rem);
-            line-height: 0.95;
-            letter-spacing: -0.05em;
-            margin: 14px 0 18px;
-        }
-
-        .hero p,
-        .hero-note p,
-        .tool-card p,
-        .helper {
-            color: var(--text-soft);
-            line-height: 1.72;
-        }
-
-        .eyebrow {
-            color: var(--accent);
-        }
-
-        .hero-note,
-        .tool-card {
-            border-radius: 26px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(18px);
-        }
-
-        .hero-note {
-            padding: 24px;
-            align-self: end;
-        }
-
-        .tool-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .tool-card {
-            padding: 22px;
-        }
-
-        .tool-card.wide {
-            grid-column: span 2;
-        }
-
-        .tool-card h2 {
-            font-size: 1.4rem;
-            letter-spacing: -0.03em;
-            margin: 12px 0 10px;
-        }
-
-        .row {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            margin-top: 16px;
+        .field-row .field {
+            flex: 1;
+            min-width: 140px;
         }
 
         .field {
-            display: grid;
-            gap: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
         }
 
         .field label {
-            color: var(--text-soft);
-            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-size: 12px;
         }
 
-        .input,
-        .select,
-        .textarea,
-        .number {
+        .field label::before {
+            content: "# ";
+            color: var(--blue);
+        }
+
+        .input, .select, .textarea, .number {
             width: 100%;
-            padding: 12px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 245, 234, 0.12);
-            background: rgba(9, 10, 12, 0.28);
-            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 2px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--text-bright);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 13px;
+        }
+
+        .input:focus, .select:focus, .textarea:focus, .number:focus {
+            outline: none;
+            border-color: var(--green-dim);
         }
 
         .textarea {
-            min-height: 120px;
+            min-height: 80px;
             resize: vertical;
         }
 
         .actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 16px;
+            gap: 8px;
+            margin: 10px 0;
         }
 
         .button {
-            padding: 11px 14px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 14px;
+            border-radius: 2px;
+            background: transparent;
             color: var(--text);
-            border: 1px solid rgba(255, 245, 234, 0.1);
-            transition: background 160ms ease, transform 160ms ease, border-color 160ms ease;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            transition: background 100ms, border-color 100ms;
         }
 
-        .button:hover,
-        .button:focus-visible {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 245, 234, 0.2);
-            transform: translateY(-1px);
+        .button:hover, .button:focus-visible {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .button.primary {
-            background: var(--accent);
-            color: #16120f;
-            font-weight: 700;
-            border-color: transparent;
+            background: var(--green-dim);
+            color: var(--text-bright);
+            border-color: var(--green-dim);
+            font-weight: 600;
         }
 
-        .button.primary:hover,
-        .button.primary:focus-visible {
-            background: var(--accent-strong);
+        .button.primary:hover, .button.primary:focus-visible {
+            background: var(--green);
+            color: #0c0c0c;
+            border-color: var(--green);
         }
 
         .button:disabled {
-            opacity: 0.45;
+            opacity: 0.3;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .output,
-        .display,
-        .qr-preview {
-            margin-top: 18px;
-            border-radius: 18px;
+        .output, .display, .qr-preview {
+            margin: 8px 0;
             border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(10, 11, 13, 0.28), rgba(19, 23, 26, 0.58));
-            padding: 18px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 12px;
+            border-radius: 2px;
         }
 
         .qr-preview {
-            min-height: 228px;
+            min-height: 200px;
             display: grid;
             place-items: center;
-            background:
-                linear-gradient(180deg, rgba(10, 11, 13, 0.26), rgba(19, 23, 26, 0.6)),
-                radial-gradient(circle at top, rgba(194, 130, 78, 0.08), transparent 55%);
         }
 
         .qr-preview svg {
-            width: min(100%, 240px);
+            width: min(100%, 200px);
             height: auto;
-            border-radius: 12px;
             background: white;
-            padding: 14px;
+            padding: 10px;
+            border-radius: 2px;
         }
 
         .display {
             display: grid;
-            gap: 8px;
-        }
-
-        .display strong,
-        .big-readout,
-        .mono {
-            font-family: "IBM Plex Mono", monospace;
+            gap: 4px;
         }
 
         .big-readout {
-            font-size: clamp(2.1rem, 4.5vw, 3.5rem);
-            letter-spacing: -0.05em;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            letter-spacing: -0.02em;
+            color: var(--green);
+            font-weight: 600;
         }
 
         .sub-readout {
-            color: var(--text-soft);
-            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-size: 12px;
         }
 
         .status-line {
-            margin-top: 12px;
+            margin-top: 4px;
             min-height: 1.4em;
-            color: var(--text-soft);
+            color: var(--text-dim);
+            font-size: 12px;
         }
 
-        .status-line.good {
-            color: var(--success);
+        .status-line::before {
+            content: "=> ";
+            color: var(--blue);
         }
 
-        .status-line.bad {
-            color: var(--danger);
-        }
+        .status-line:empty::before { content: ""; }
+
+        .status-line.good { color: var(--green); }
+        .status-line.bad { color: var(--red); }
 
         .results {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 14px;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .result-pill {
-            padding: 9px 12px;
-            border-radius: 999px;
-            background: var(--surface-accent);
-            border: 1px solid rgba(194, 130, 78, 0.18);
-            color: var(--text);
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.94rem;
+            padding: 4px 10px;
+            border-radius: 2px;
+            background: var(--selection);
+            border: 1px solid var(--green-dim);
+            color: var(--green);
+            font-size: 14px;
         }
 
-        .note-list {
-            list-style: none;
-            display: grid;
-            gap: 10px;
-            margin-top: 12px;
-            color: var(--text-soft);
-        }
-
-        .note-list li {
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255, 245, 234, 0.08);
+        .helper {
+            color: var(--text-dim);
+            font-size: 13px;
         }
 
         .sr-only {
@@ -353,210 +349,239 @@
             border: 0;
         }
 
-        @media (max-width: 960px) {
-            .topbar,
-            .hero,
-            .tool-grid,
-            .row {
-                grid-template-columns: 1fr;
-            }
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--green);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
 
-            .tool-card.wide {
-                grid-column: auto;
-            }
-
-            .top-links {
-                justify-self: start;
-            }
+        @keyframes blink {
+            50% { opacity: 0; }
         }
 
         @media (max-width: 640px) {
-            .shell {
-                width: min(calc(100% - 24px), 1180px);
-                padding-top: 16px;
-            }
-
-            h1 {
-                font-size: 2.4rem;
-                max-width: 9ch;
-            }
-
-            .hero-note,
-            .tool-card {
-                border-radius: 22px;
-            }
+            .terminal-body { padding: 12px 14px 32px; }
+            .field-row { flex-direction: column; }
+            .section-divider::after { content: " ─────────────"; }
         }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <div class="topbar">
-            <div class="pill">Utilities</div>
-            <div class="tiny" style="color: var(--text-soft);">Computer Hardware Club</div>
-            <nav class="top-links" aria-label="Page links">
-                <a href="/">Hub</a>
-                <a href="/workshops/">Workshops</a>
+    <div class="terminal-window">
+        <div class="title-bar">
+            <div class="title-bar-dots">
+                <span class="dot-close"></span>
+                <span class="dot-min"></span>
+                <span class="dot-max"></span>
+            </div>
+            <div class="title-bar-text" id="title-bar-text">utilities &mdash; 80x24</div>
+            <nav class="title-bar-nav" aria-label="Page links">
+                <a href="/">hub</a>
+                <a href="/workshops/">workshops</a>
             </nav>
         </div>
 
-        <section class="hero">
+        <div class="terminal-body">
+            <div class="motd">Computer Hardware Club &mdash; Utilities</div>
+            <div class="motd">Type help for available commands. All tools run client-side.</div>
+            <br>
+
             <div>
-                <div class="eyebrow">Browser tools</div>
-                <h1>Useful utilities, minus the junk drawer feel.</h1>
-                <p>Common quick-hit tools collected into one clean page: QR generation, clocks and timers, and quick randomness, all static and client-side.</p>
+                <span class="prompt"><span class="user" id="prompt-user"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cmd">qr-generate</span>
             </div>
-            <aside class="hero-note">
-                <div class="eyebrow">Included here</div>
-                <ul class="note-list">
-                    <li><span>QR code generator</span><strong>Local helper</strong></li>
-                    <li><span>Clock &amp; timers</span><strong>Keep sessions on track</strong></li>
-                    <li><span>Random number generator</span><strong>One pick or many</strong></li>
-                    <li><span>Static page</span><strong>No accounts, no trackers</strong></li>
-                </ul>
-            </aside>
-        </section>
 
-        <main class="tool-grid">
-            <section class="tool-card">
-                <div class="eyebrow">QR code</div>
-                <h2>QR Generator</h2>
-                <p>Generate a QR code locally and download it as an SVG without leaving the page.</p>
-                <div class="field" style="margin-top: 16px;">
-                    <label for="qr-text">Content</label>
-                    <textarea id="qr-text" class="textarea" placeholder="Paste a URL, Wi-Fi string, note, or anything else.">https://computerhardwareclub.org</textarea>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label for="qr-level">Error correction</label>
-                        <select id="qr-level" class="select">
-                            <option value="L">Low</option>
-                            <option value="M" selected>Medium</option>
-                            <option value="Q">Quartile</option>
-                            <option value="H">High</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="qr-size">Size</label>
-                        <select id="qr-size" class="select">
-                            <option value="192">192 px</option>
-                            <option value="256" selected>256 px</option>
-                            <option value="320">320 px</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="actions">
-                    <button id="qr-download" class="button primary" type="button">Download SVG</button>
-                    <button id="qr-copy" class="button" type="button">Copy text</button>
-                </div>
-                <div id="qr-preview" class="qr-preview" aria-live="polite"></div>
-                <div id="qr-status" class="status-line"></div>
-            </section>
+            <div class="output-block">
+                <div class="tool-block">
+                    <div class="tool-header">QR Generator</div>
+                    <div class="tool-desc">Generate a QR code locally and download as SVG.</div>
 
-            <section class="tool-card">
-                <div class="eyebrow">Time</div>
-                <h2>Live Clock</h2>
-                <p>Use your detected timezone by default, or switch to another timezone manually.</p>
-                <div class="row">
                     <div class="field">
-                        <label for="timezone-input">Timezone</label>
-                        <input id="timezone-input" class="input" list="timezone-options" placeholder="America/Los_Angeles">
-                        <datalist id="timezone-options"></datalist>
+                        <label for="qr-text">content</label>
+                        <textarea id="qr-text" class="textarea" placeholder="Paste a URL, Wi-Fi string, note, or anything else.">https://computerhardwareclub.org</textarea>
                     </div>
-                    <div class="field">
-                        <label for="clock-format">Format</label>
-                        <select id="clock-format" class="select">
-                            <option value="12">12-hour</option>
-                            <option value="24" selected>24-hour</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="actions">
-                    <button id="timezone-reset" class="button" type="button">Use detected timezone</button>
-                </div>
-                <div class="display" aria-live="polite">
-                    <div id="clock-time" class="big-readout">--:--:--</div>
-                    <div id="clock-date" class="sub-readout">Waiting for time data...</div>
-                    <div id="clock-zone" class="sub-readout"></div>
-                </div>
-                <div id="clock-status" class="status-line"></div>
-            </section>
-
-            <section class="tool-card">
-                <div class="eyebrow">Time</div>
-                <h2>Stopwatch</h2>
-                <p>Start, pause, resume, and reset without leaving the page.</p>
-                <div class="display">
-                    <div id="stopwatch-display" class="big-readout">00:00.00</div>
-                    <div class="sub-readout">Hundredths precision for quick timing.</div>
-                </div>
-                <div class="actions">
-                    <button id="stopwatch-start" class="button primary" type="button">Start</button>
-                    <button id="stopwatch-pause" class="button" type="button">Pause</button>
-                    <button id="stopwatch-reset" class="button" type="button">Reset</button>
-                </div>
-            </section>
-
-            <section class="tool-card">
-                <div class="eyebrow">Countdown</div>
-                <h2>Timer</h2>
-                <p>Set a countdown, pause it, reset it, and keep the completion state obvious.</p>
-                <div class="row">
-                    <div class="field">
-                        <label for="timer-minutes">Minutes</label>
-                        <input id="timer-minutes" class="number" type="number" min="0" max="999" value="5">
-                    </div>
-                    <div class="field">
-                        <label for="timer-seconds">Seconds</label>
-                        <input id="timer-seconds" class="number" type="number" min="0" max="59" value="0">
-                    </div>
-                </div>
-                <div class="display">
-                    <div id="timer-display" class="big-readout">05:00</div>
-                    <div class="sub-readout">Ready when you are.</div>
-                </div>
-                <div class="actions">
-                    <button id="timer-start" class="button primary" type="button">Start</button>
-                    <button id="timer-pause" class="button" type="button">Pause</button>
-                    <button id="timer-reset" class="button" type="button">Reset</button>
-                </div>
-                <div id="timer-status" class="status-line"></div>
-            </section>
-
-            <section class="tool-card wide">
-                <div class="eyebrow">Random</div>
-                <h2>Random Number Generator</h2>
-                <p>Generate one or many whole numbers inside a range, with input validation instead of weird edge-case behavior.</p>
-                <div class="row">
-                    <div class="field">
-                        <label for="rng-min">Minimum</label>
-                        <input id="rng-min" class="number" type="number" value="1">
-                    </div>
-                    <div class="field">
-                        <label for="rng-max">Maximum</label>
-                        <input id="rng-max" class="number" type="number" value="100">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label for="rng-count">How many numbers</label>
-                        <input id="rng-count" class="number" type="number" min="1" max="20" value="1">
-                    </div>
-                    <div class="field">
-                        <label class="sr-only" for="rng-generate">Generate</label>
-                        <div class="actions" style="margin-top: 30px;">
-                            <button id="rng-generate" class="button primary" type="button">Generate</button>
-                            <button id="rng-clear" class="button" type="button">Clear</button>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="qr-level">error-correction</label>
+                            <select id="qr-level" class="select">
+                                <option value="L">Low</option>
+                                <option value="M" selected>Medium</option>
+                                <option value="Q">Quartile</option>
+                                <option value="H">High</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="qr-size">size</label>
+                            <select id="qr-size" class="select">
+                                <option value="192">192 px</option>
+                                <option value="256" selected>256 px</option>
+                                <option value="320">320 px</option>
+                            </select>
                         </div>
                     </div>
+                    <div class="actions">
+                        <button id="qr-download" class="button primary" type="button">download-svg</button>
+                        <button id="qr-copy" class="button" type="button">copy-text</button>
+                    </div>
+                    <div id="qr-preview" class="qr-preview" aria-live="polite"></div>
+                    <div id="qr-status" class="status-line"></div>
                 </div>
-                <div id="rng-status" class="status-line"></div>
-                <div id="rng-results" class="results" aria-live="polite"></div>
-            </section>
-        </main>
+            </div>
+
+            <div class="section-divider">clock</div>
+            <div>
+                <span class="prompt"><span class="user" id="prompt-user-2"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cmd">clock --live</span>
+            </div>
+
+            <div class="output-block">
+                <div class="tool-block">
+                    <div class="tool-header">Live Clock</div>
+                    <div class="tool-desc">Detected timezone by default, or override manually.</div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="timezone-input">timezone</label>
+                            <input id="timezone-input" class="input" list="timezone-options" placeholder="America/Los_Angeles">
+                            <datalist id="timezone-options"></datalist>
+                        </div>
+                        <div class="field">
+                            <label for="clock-format">format</label>
+                            <select id="clock-format" class="select">
+                                <option value="12">12-hour</option>
+                                <option value="24" selected>24-hour</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button id="timezone-reset" class="button" type="button">reset-timezone</button>
+                    </div>
+                    <div class="display" aria-live="polite">
+                        <div id="clock-time" class="big-readout">--:--:--</div>
+                        <div id="clock-date" class="sub-readout">Waiting for time data...</div>
+                        <div id="clock-zone" class="sub-readout"></div>
+                    </div>
+                    <div id="clock-status" class="status-line"></div>
+                </div>
+            </div>
+
+            <div class="section-divider">stopwatch</div>
+            <div>
+                <span class="prompt"><span class="user" id="prompt-user-3"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cmd">stopwatch</span>
+            </div>
+
+            <div class="output-block">
+                <div class="tool-block">
+                    <div class="tool-header">Stopwatch</div>
+                    <div class="tool-desc">Hundredths precision. Start, pause, resume, reset.</div>
+
+                    <div class="display">
+                        <div id="stopwatch-display" class="big-readout">00:00.00</div>
+                    </div>
+                    <div class="actions">
+                        <button id="stopwatch-start" class="button primary" type="button">start</button>
+                        <button id="stopwatch-pause" class="button" type="button">pause</button>
+                        <button id="stopwatch-reset" class="button" type="button">reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider">timer</div>
+            <div>
+                <span class="prompt"><span class="user" id="prompt-user-4"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cmd">timer --set 5m</span>
+            </div>
+
+            <div class="output-block">
+                <div class="tool-block">
+                    <div class="tool-header">Timer</div>
+                    <div class="tool-desc">Set a countdown, pause, reset. Completion state is obvious.</div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="timer-minutes">minutes</label>
+                            <input id="timer-minutes" class="number" type="number" min="0" max="999" value="5">
+                        </div>
+                        <div class="field">
+                            <label for="timer-seconds">seconds</label>
+                            <input id="timer-seconds" class="number" type="number" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                    <div class="display">
+                        <div id="timer-display" class="big-readout">05:00</div>
+                    </div>
+                    <div class="actions">
+                        <button id="timer-start" class="button primary" type="button">start</button>
+                        <button id="timer-pause" class="button" type="button">pause</button>
+                        <button id="timer-reset" class="button" type="button">reset</button>
+                    </div>
+                    <div id="timer-status" class="status-line"></div>
+                </div>
+            </div>
+
+            <div class="section-divider">rng</div>
+            <div>
+                <span class="prompt"><span class="user" id="prompt-user-5"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cmd">rng --min 1 --max 100</span>
+            </div>
+
+            <div class="output-block">
+                <div class="tool-block">
+                    <div class="tool-header">Random Number Generator</div>
+                    <div class="tool-desc">Generate whole numbers in a range with input validation.</div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="rng-min">min</label>
+                            <input id="rng-min" class="number" type="number" value="1">
+                        </div>
+                        <div class="field">
+                            <label for="rng-max">max</label>
+                            <input id="rng-max" class="number" type="number" value="100">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="rng-count">count</label>
+                            <input id="rng-count" class="number" type="number" min="1" max="20" value="1">
+                        </div>
+                        <div class="field">
+                            <label class="sr-only" for="rng-generate">generate</label>
+                            <div class="actions" style="margin-top: 20px;">
+                                <button id="rng-generate" class="button primary" type="button">generate</button>
+                                <button id="rng-clear" class="button" type="button">clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="rng-status" class="status-line"></div>
+                    <div id="rng-results" class="results" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px;">
+                <span class="prompt"><span class="user" id="prompt-user-6"></span><span class="at">@</span><span class="host">joestar</span><span class="sep">:</span><span class="path">~/utilities</span><span class="dollar"> $</span></span>
+                <span class="cursor-blink"></span>
+            </div>
+        </div>
     </div>
 
     <script src="./vendor/qrcode.min.js"></script>
     <script>
+    const USERNAMES = ["jonathan", "joseph", "johnny", "jodio"];
+    const USERNAME = USERNAMES[Math.floor(Math.random() * USERNAMES.length)];
+
+    document.querySelectorAll("[id^='prompt-user']").forEach(function(el) {
+        el.textContent = USERNAME;
+    });
+
+    document.getElementById("title-bar-text").textContent =
+        USERNAME + "@joestar: ~/utilities";
+
     const qrTextInput = document.getElementById("qr-text");
     const qrLevelInput = document.getElementById("qr-level");
     const qrSizeInput = document.getElementById("qr-size");
@@ -613,10 +638,8 @@
     qrLevelInput.addEventListener("change", renderQr);
     qrSizeInput.addEventListener("change", renderQr);
 
-    qrDownloadButton.addEventListener("click", () => {
-        if (!currentQrSvg) {
-            return;
-        }
+    qrDownloadButton.addEventListener("click", function() {
+        if (!currentQrSvg) { return; }
         const blob = new Blob([currentQrSvg], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -626,7 +649,7 @@
         URL.revokeObjectURL(url);
     });
 
-    qrCopyButton.addEventListener("click", async () => {
+    qrCopyButton.addEventListener("click", async function() {
         try {
             await navigator.clipboard.writeText(qrTextInput.value);
             setStatus(qrStatus, "Source text copied.", "good");
@@ -646,19 +669,9 @@
     const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     const timezoneCandidates = typeof Intl.supportedValuesOf === "function"
         ? Intl.supportedValuesOf("timeZone")
-        : [
-            "UTC",
-            "America/Los_Angeles",
-            "America/Denver",
-            "America/Chicago",
-            "America/New_York",
-            "Europe/London",
-            "Europe/Paris",
-            "Asia/Tokyo",
-            "Australia/Sydney"
-        ];
+        : ["UTC","America/Los_Angeles","America/Denver","America/Chicago","America/New_York","Europe/London","Europe/Paris","Asia/Tokyo","Australia/Sydney"];
 
-    timezoneCandidates.forEach((zone) => {
+    timezoneCandidates.forEach(function(zone) {
         const option = document.createElement("option");
         option.value = zone;
         timezoneOptions.appendChild(option);
@@ -681,26 +694,17 @@
         const zone = getSafeTimezone(timezoneInput.value);
         const hour12 = clockFormat.value === "12";
         const timeFormatter = new Intl.DateTimeFormat("en-US", {
-            timeZone: zone,
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12
+            timeZone: zone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12
         });
         const dateFormatter = new Intl.DateTimeFormat("en-US", {
-            timeZone: zone,
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            year: "numeric"
+            timeZone: zone, weekday: "long", month: "long", day: "numeric", year: "numeric"
         });
         const zoneFormatter = new Intl.DateTimeFormat("en-US", {
-            timeZone: zone,
-            timeZoneName: "short"
+            timeZone: zone, timeZoneName: "short"
         });
         clockTime.textContent = timeFormatter.format(now);
         clockDate.textContent = dateFormatter.format(now);
-        clockZone.textContent = zone + " (" + zoneFormatter.formatToParts(now).find((part) => part.type === "timeZoneName").value + ")";
+        clockZone.textContent = zone + " (" + zoneFormatter.formatToParts(now).find(function(part) { return part.type === "timeZoneName"; }).value + ")";
         if (zone !== timezoneInput.value.trim() && timezoneInput.value.trim()) {
             setStatus(clockStatus, "Unknown timezone. Falling back to detected timezone.", "bad");
         } else {
@@ -710,7 +714,7 @@
 
     timezoneInput.addEventListener("input", updateClock);
     clockFormat.addEventListener("change", updateClock);
-    timezoneReset.addEventListener("click", () => {
+    timezoneReset.addEventListener("click", function() {
         timezoneInput.value = detectedTimezone;
         updateClock();
     });
@@ -738,24 +742,20 @@
         stopwatchDisplay.textContent = formatStopwatch(total);
     }
 
-    stopwatchStart.addEventListener("click", () => {
-        if (stopwatchRunning) {
-            return;
-        }
+    stopwatchStart.addEventListener("click", function() {
+        if (stopwatchRunning) { return; }
         stopwatchRunning = true;
         stopwatchStartedAt = performance.now();
     });
 
-    stopwatchPause.addEventListener("click", () => {
-        if (!stopwatchRunning) {
-            return;
-        }
+    stopwatchPause.addEventListener("click", function() {
+        if (!stopwatchRunning) { return; }
         stopwatchElapsed += performance.now() - stopwatchStartedAt;
         stopwatchRunning = false;
         renderStopwatch();
     });
 
-    stopwatchReset.addEventListener("click", () => {
+    stopwatchReset.addEventListener("click", function() {
         stopwatchElapsed = 0;
         stopwatchRunning = false;
         stopwatchStartedAt = 0;
@@ -787,9 +787,7 @@
     }
 
     function syncTimerFromInputs() {
-        if (timerRunning) {
-            return;
-        }
+        if (timerRunning) { return; }
         timerRemainingMs = readTimerInputMs();
         timerDisplay.textContent = formatTimer(timerRemainingMs);
         setStatus(timerStatus, timerRemainingMs > 0 ? "Ready when you are." : "Enter a duration to start.", timerRemainingMs > 0 ? "" : "bad");
@@ -798,7 +796,7 @@
     timerMinutes.addEventListener("input", syncTimerFromInputs);
     timerSeconds.addEventListener("input", syncTimerFromInputs);
 
-    timerStart.addEventListener("click", () => {
+    timerStart.addEventListener("click", function() {
         if (!timerRunning) {
             if (timerRemainingMs <= 0) {
                 timerRemainingMs = readTimerInputMs();
@@ -813,17 +811,15 @@
         }
     });
 
-    timerPause.addEventListener("click", () => {
-        if (!timerRunning) {
-            return;
-        }
+    timerPause.addEventListener("click", function() {
+        if (!timerRunning) { return; }
         timerRemainingMs = Math.max(0, timerEndsAt - performance.now());
         timerRunning = false;
         timerDisplay.textContent = formatTimer(timerRemainingMs);
         setStatus(timerStatus, "Timer paused.", "");
     });
 
-    timerReset.addEventListener("click", () => {
+    timerReset.addEventListener("click", function() {
         timerRunning = false;
         timerRemainingMs = readTimerInputMs();
         timerDisplay.textContent = formatTimer(timerRemainingMs);
@@ -838,7 +834,7 @@
     const rngResults = document.getElementById("rng-results");
     const rngStatus = document.getElementById("rng-status");
 
-    rngGenerate.addEventListener("click", () => {
+    rngGenerate.addEventListener("click", function() {
         const min = Number(rngMin.value);
         const max = Number(rngMax.value);
         const count = Number(rngCount.value);
@@ -869,7 +865,7 @@
         setStatus(rngStatus, "Generated " + count + " number" + (count === 1 ? "" : "s") + ".", "good");
     });
 
-    rngClear.addEventListener("click", () => {
+    rngClear.addEventListener("click", function() {
         rngResults.innerHTML = "";
         setStatus(rngStatus, "Results cleared.", "");
     });
@@ -894,7 +890,6 @@
     syncTimerFromInputs();
     renderStopwatch();
     requestAnimationFrame(tick);
-</script>
-
+    </script>
 </body>
 </html>
