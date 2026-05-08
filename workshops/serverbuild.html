@@ -17,14 +17,31 @@
         .accent-orange { color: #d77b3f; }
         .terminal-border { border: 1px solid #30363d; }
         .code-block { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; }
-        input::placeholder { color: #484f58; }
+
+        /* Focus-visible for keyboard accessibility */
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid #58a6ff;
+            outline-offset: 2px;
+        }
+
+        input::placeholder { color: #6e7681; }
         input:focus { outline: none; border-color: #58a6ff !important; box-shadow: 0 0 0 1px #58a6ff; }
+        textarea:focus { outline: none; border-color: #58a6ff !important; box-shadow: 0 0 0 1px #58a6ff; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0d1117; }
         ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
         .part-thumb { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; }
-        .part-thumb-placeholder { width: 100%; aspect-ratio: 1; border-radius: 6px; border: 1px solid #30363d; background: #161b22; display: flex; align-items: center; justify-content: center; color: #484f58; }
+        .part-thumb-placeholder { width: 100%; aspect-ratio: 1; border-radius: 6px; border: 1px solid #30363d; background: #161b22; display: flex; align-items: center; justify-content: center; color: #6e7681; }
+
+        /* Toast with safe-area-inset support */
+        #link-copied-toast {
+            bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+            right: 1.5rem;
+        }
+
         @keyframes pulse-total {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
@@ -41,6 +58,42 @@
         }
         .timer-end { animation: timer-end-flash 1s ease-in-out infinite; }
         input#timer-minutes:disabled, input#timer-seconds:disabled { opacity: 0.9; border-color: transparent !important; }
+
+        /* === Fullscreen mode styles (CSS-driven, not inline JS) === */
+        .fs-mode main,
+        .fs-mode header > div { max-width: 96vw !important; }
+        .fs-mode .objective-card { padding: 1.25rem 1.5rem !important; }
+        .fs-mode .objective-card h2 { font-size: 1.5rem !important; }
+        .fs-mode .objective-card p { font-size: 1.1rem !important; }
+        .fs-mode .rules-tips-grid { gap: 1.5rem !important; }
+        .fs-mode .rules-tips-card { padding: 1.25rem 1.5rem !important; }
+        .fs-mode .rules-tips-card h3 { font-size: 1rem !important; }
+        .fs-mode .rules-tips-card ol,
+        .fs-mode .rules-tips-card ul { font-size: 0.9rem !important; }
+        .fs-mode #total-display { font-size: 3rem !important; }
+        .fs-mode .build-h2 { font-size: 1.5rem !important; }
+        .fs-mode .name-card { padding: 1.25rem 1.5rem !important; }
+        .fs-mode .part-card { padding: 1.25rem 1.5rem !important; }
+        .fs-mode .part-card input,
+        .fs-mode .part-card textarea { font-size: 1rem !important; padding: 0.65rem 0.75rem !important; }
+        .fs-mode .part-card .part-grid { gap: 0.75rem !important; }
+        .fs-mode .part-card .part-label { font-size: 1rem !important; }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+
+        #auto-save-indicator {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #auto-save-indicator.show {
+            opacity: 1;
+        }
+        #auto-save-indicator.fade {
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -54,9 +107,13 @@
                 </h1>
             </div>
             <div class="flex items-center gap-2">
+                <div id="auto-save-indicator" class="text-xs flex items-center gap-1.5 text-gray-500 shrink-0" aria-live="polite">
+                    <i data-lucide="save" class="w-3 h-3"></i>
+                    <span id="auto-save-text">Saved</span>
+                </div>
                 <a href="../" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors">Hub</a>
                 <a href="./" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors">Workshops</a>
-                <button onclick="toggleFullscreen()" id="fs-btn" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" title="Toggle fullscreen">
+                <button onclick="toggleFullscreen()" id="fs-btn" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" aria-label="Toggle fullscreen" title="Toggle fullscreen">
                     <i data-lucide="maximize-2" class="w-3 h-3"></i> Expand
                 </button>
             </div>
@@ -65,7 +122,7 @@
 
     <main class="flex-grow max-w-5xl mx-auto px-4 py-8 space-y-10 w-full">
 
-        <div id="viewing-banner" class="hidden p-4 rounded-lg bg-[#161b22] border border-[#f0883e]/30 shadow-lg relative overflow-hidden">
+        <div id="viewing-banner" class="hidden p-4 rounded-lg bg-[#161b22] border border-[#f0883e]/30 shadow-lg relative overflow-hidden" role="alert">
             <div class="absolute top-0 left-0 w-1 h-full bg-[#f0883e]"></div>
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-center gap-2">
@@ -77,14 +134,14 @@
                         <span id="viewing-server" class="font-bold terminal-blue"></span>
                     </div>
                 </div>
-                <button onclick="closeViewingMode()" class="text-xs border border-[#30363d] px-3 py-1.5 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1">
+                <button onclick="closeViewingMode()" class="text-xs border border-[#30363d] px-3 py-1.5 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" aria-label="Close viewing mode and return to editor">
                     <i data-lucide="x" class="w-3 h-3"></i> Close
                 </button>
             </div>
         </div>
 
         <section class="space-y-4">
-            <div class="p-4 rounded-lg bg-[#161b22] border border-[#30363d] shadow-lg relative overflow-hidden">
+            <div class="objective-card p-4 rounded-lg bg-[#161b22] border border-[#30363d] shadow-lg relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-[#d77b3f]"></div>
                 <h2 class="text-xl font-bold accent-orange mb-2 flex items-center">
                     <i data-lucide="target" class="w-5 h-5 mr-2"></i> Objective
@@ -94,8 +151,8 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="p-4 rounded-lg code-block relative overflow-hidden">
+            <div class="rules-tips-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rules-tips-card p-4 rounded-lg code-block relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
                     <h3 class="text-sm font-bold terminal-green mb-3 flex items-center">
                         <i data-lucide="list-checks" class="w-4 h-4 mr-2"></i> Rules
@@ -107,7 +164,7 @@
                         <li class="flex items-start gap-2"><span class="terminal-green font-bold">04.</span><span>Everyone must vote at the end. You cannot vote for yourself</span></li>
                     </ol>
                 </div>
-                <div class="p-4 rounded-lg code-block relative overflow-hidden">
+                <div class="rules-tips-card p-4 rounded-lg code-block relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-[#58a6ff]"></div>
                     <h3 class="text-sm font-bold terminal-blue mb-3 flex items-center">
                         <i data-lucide="lightbulb" class="w-4 h-4 mr-2"></i> Tips
@@ -127,19 +184,19 @@
                     <i data-lucide="timer" class="w-4 h-4 mr-2"></i> Workshop Timer
                 </h3>
                 <div class="flex items-center justify-between flex-wrap gap-4">
-                    <div id="timer-display" class="text-4xl md:text-5xl font-bold tabular-nums tracking-wider flex items-center">
-                        <input id="timer-minutes" type="text" inputmode="numeric" value="45" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()">
+                    <div id="timer-display" class="text-4xl md:text-5xl font-bold tabular-nums tracking-wider flex items-center" role="timer" aria-live="polite" aria-label="Workshop countdown timer">
+                        <input id="timer-minutes" type="text" inputmode="numeric" value="45" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()" aria-label="Timer minutes">
                         <span class="text-4xl md:text-5xl font-bold text-gray-500 mx-1 select-none">:</span>
-                        <input id="timer-seconds" type="text" inputmode="numeric" value="00" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()">
+                        <input id="timer-seconds" type="text" inputmode="numeric" value="00" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()" aria-label="Timer seconds">
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="startTimer()" id="timer-start" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1">
+                        <button onclick="startTimer()" id="timer-start" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" aria-label="Start timer">
                             <i data-lucide="play" class="w-3.5 h-3.5"></i> Start
                         </button>
-                        <button onclick="stopTimer()" id="timer-stop" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" disabled>
+                        <button onclick="stopTimer()" id="timer-stop" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" disabled aria-label="Stop timer">
                             <i data-lucide="pause" class="w-3.5 h-3.5"></i> Stop
                         </button>
-                        <button onclick="resetTimer()" id="timer-reset" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1">
+                        <button onclick="resetTimer()" id="timer-reset" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" aria-label="Reset timer">
                             <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
                         </button>
                     </div>
@@ -149,42 +206,41 @@
 
         <section class="space-y-4" id="build-form-section">
             <div class="flex items-center justify-between flex-wrap gap-3">
-                <h2 class="text-xl font-bold terminal-green flex items-center">
+                <h2 class="text-xl font-bold terminal-green build-h2 flex items-center">
                     <i data-lucide="cpu" class="w-5 h-5 mr-2"></i> Part Tracker
                 </h2>
                 <div class="flex items-center gap-2">
-                    <button onclick="copyShareableLink()" class="text-xs terminal-border px-3 py-1.5 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" id="share-btn">
+                    <button onclick="copyShareableLink()" class="text-xs terminal-border px-3 py-1.5 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" id="share-btn" aria-label="Copy shareable link for your build">
                         <i data-lucide="link-2" class="w-3.5 h-3.5"></i> Copy Shareable Link
                     </button>
-                    <button onclick="clearBuild()" class="text-xs terminal-border px-3 py-1.5 rounded text-gray-400 hover:text-red-400 hover:border-red-400/50 transition-colors flex items-center gap-1">
+                    <button onclick="clearBuild()" class="text-xs terminal-border px-3 py-1.5 rounded text-gray-400 hover:text-red-400 hover:border-red-400/50 transition-colors flex items-center gap-1" aria-label="Clear all parts and reset tracker">
                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear
                     </button>
                 </div>
             </div>
 
-            <div id="link-copied-toast" class="hidden fixed bottom-6 right-6 bg-[#161b22] border border-green-500/50 text-green-400 text-xs px-4 py-2 rounded-lg shadow-xl z-50 flex items-center gap-2 slide-in">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> Link copied to clipboard!
+            <div id="link-copied-toast" class="hidden fixed bg-[#161b22] border border-green-500/50 text-green-400 text-xs px-4 py-2 rounded-lg shadow-xl z-50 flex items-center gap-2 slide-in" role="status" aria-live="polite">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span id="toast-message"></span>
             </div>
 
-            <div class="p-4 rounded-lg code-block space-y-4">
+            <div class="name-card p-4 rounded-lg code-block space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs text-gray-400 mb-1 block">Team Name</label>
+                        <label class="text-xs text-gray-400 mb-1 block" for="team-name">Team Name</label>
                         <input type="text" id="team-name" placeholder='e.g. "Team Peter"' class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-400 mb-1 block">Server Name</label>
+                        <label class="text-xs text-gray-400 mb-1 block" for="server-name">Server Name</label>
                         <input type="text" id="server-name" placeholder='e.g. "The Competer"' class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
                     </div>
                 </div>
             </div>
 
-            <div id="parts-container" class="space-y-4">
-                <!-- Fixed slots rendered by JS -->
-            </div>
+            <div id="parts-container" class="space-y-4"></div>
 
             <div class="flex items-center gap-3 flex-wrap">
-                <button onclick="addOtherSlot()" class="text-sm terminal-border px-3 py-2 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1.5">
+                <button onclick="addOtherSlot()" class="text-sm terminal-border px-3 py-2 rounded text-gray-400 hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1.5" aria-label="Add another custom part slot">
                     <i data-lucide="plus" class="w-4 h-4"></i> Add "Other" Part
                 </button>
             </div>
@@ -195,7 +251,7 @@
                         <i data-lucide="calculator" class="w-5 h-5 accent-orange"></i>
                         <span class="text-sm text-gray-400 uppercase tracking-wider">Total Cost</span>
                     </div>
-                    <div id="total-display" class="text-3xl md:text-4xl font-bold accent-orange tabular-nums">$0.00</div>
+                    <div id="total-display" class="text-3xl md:text-4xl font-bold accent-orange tabular-nums" aria-label="Total build cost">$0.00</div>
                 </div>
             </div>
         </section>
@@ -210,16 +266,32 @@
     </main>
 
     <script>
-        const FIXED_SLOTS = [
+        /* ===== Constants ===== */
+        var FIXED_SLOTS = [
             { key: 'cpu', label: 'CPU', icon: 'cpu' },
             { key: 'gpu', label: 'GPU', icon: 'monitor' },
             { key: 'ram', label: 'RAM', icon: 'hard-drive' },
             { key: 'case', label: 'Case / Chassis', icon: 'box' }
         ];
 
-        let otherCount = 0;
-        let isViewingMode = false;
+        /* ===== State ===== */
+        var otherCount = 0;
+        var isViewingMode = false;
+        var lucideNeedsRefresh = false;
 
+        /* ===== Lucide icon batching ===== */
+        function scheduleLucideRefresh() {
+            lucideNeedsRefresh = true;
+        }
+
+        function flushLucideRefresh() {
+            if (lucideNeedsRefresh) {
+                lucideNeedsRefresh = false;
+                lucide.createIcons();
+            }
+        }
+
+        /* ===== Fullscreen (CSS class toggling, no inline styles) ===== */
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -228,93 +300,10 @@
             }
         }
 
-        function applyFsStyles(enabled) {
-            const main = document.querySelector('main');
-            const headerDiv = document.querySelector('header > div');
-            const objectiveCard = document.querySelector('section:first-of-type > div:first-child');
-            const rulesTipsGrid = document.querySelector('section:first-of-type > div.grid');
-            const rulesTipsCards = rulesTipsGrid ? rulesTipsGrid.querySelectorAll(':scope > div') : [];
-            const totalDisplay = document.getElementById('total-display');
-            const partsCards = document.querySelectorAll('#parts-container > div');
-
-            if (enabled) {
-                main.style.maxWidth = '96vw';
-                headerDiv.style.maxWidth = '96vw';
-                if (objectiveCard) {
-                    objectiveCard.style.padding = '1.25rem 1.5rem';
-                }
-                const h2 = objectiveCard ? objectiveCard.querySelector('h2') : null;
-                if (h2) h2.style.fontSize = '1.5rem';
-                const pObj = objectiveCard ? objectiveCard.querySelector('p') : null;
-                if (pObj) pObj.style.fontSize = '1.1rem';
-                if (rulesTipsGrid) rulesTipsGrid.style.gap = '1.5rem';
-                rulesTipsCards.forEach(card => {
-                    card.style.padding = '1.25rem 1.5rem';
-                    const h3 = card.querySelector('h3');
-                    if (h3) h3.style.fontSize = '1rem';
-                    const lists = card.querySelectorAll('ol, ul');
-                    lists.forEach(l => l.style.fontSize = '0.9rem');
-                });
-                if (totalDisplay) totalDisplay.style.fontSize = '3rem';
-                const buildH2 = document.querySelector('#build-form-section > div:first-child h2');
-                if (buildH2) buildH2.style.fontSize = '1.5rem';
-                const nameCard = document.querySelector('#build-form-section > div.code-block');
-                if (nameCard) nameCard.style.padding = '1.25rem 1.5rem';
-                partsCards.forEach(card => {
-                    card.style.padding = '1.25rem 1.5rem';
-                    const inputs = card.querySelectorAll('input');
-                    inputs.forEach(inp => {
-                        inp.style.fontSize = '1rem';
-                        inp.style.padding = '0.65rem 0.75rem';
-                    });
-                    const grid = card.querySelector(':scope > .grid, :scope > div > .grid');
-                    if (grid) grid.style.gap = '0.75rem';
-                    const label = card.querySelector('.text-sm.font-bold, span.text-sm');
-                    if (label) label.style.fontSize = '1rem';
-                });
-            } else {
-                main.style.maxWidth = '';
-                main.style.removeProperty('max-width');
-                headerDiv.style.maxWidth = '';
-                headerDiv.style.removeProperty('max-width');
-                if (objectiveCard) objectiveCard.style.padding = '';
-                const h2 = objectiveCard ? objectiveCard.querySelector('h2') : null;
-                if (h2) h2.style.fontSize = '';
-                const pObj = objectiveCard ? objectiveCard.querySelector('p') : null;
-                if (pObj) pObj.style.fontSize = '';
-                if (rulesTipsGrid) rulesTipsGrid.style.gap = '';
-                rulesTipsCards.forEach(card => {
-                    card.style.padding = '';
-                    const h3 = card.querySelector('h3');
-                    if (h3) h3.style.fontSize = '';
-                    const lists = card.querySelectorAll('ol, ul');
-                    lists.forEach(l => l.style.fontSize = '');
-                });
-                if (totalDisplay) totalDisplay.style.fontSize = '';
-                const buildH2 = document.querySelector('#build-form-section > div:first-child h2');
-                if (buildH2) buildH2.style.fontSize = '';
-                const nameCard = document.querySelector('#build-form-section > div.code-block');
-                if (nameCard) nameCard.style.padding = '';
-                partsCards.forEach(card => {
-                    card.style.padding = '';
-                    const inputs = card.querySelectorAll('input');
-                    inputs.forEach(inp => {
-                        inp.style.fontSize = '';
-                        inp.style.padding = '';
-                    });
-                    const grid = card.querySelector(':scope > .grid, :scope > div > .grid');
-                    if (grid) grid.style.gap = '';
-                    const label = card.querySelector('.text-sm.font-bold, span.text-sm');
-                    if (label) label.style.fontSize = '';
-                });
-            }
-        }
-
         function updateFullscreenState() {
-            const enabled = !!document.fullscreenElement;
+            var enabled = !!document.fullscreenElement;
             document.body.classList.toggle('fs-mode', enabled);
-            applyFsStyles(enabled);
-            const btn = document.getElementById('fs-btn');
+            var btn = document.getElementById('fs-btn');
             if (btn) {
                 btn.innerHTML = enabled
                     ? '<i data-lucide="minimize-2" class="w-3 h-3"></i> Collapse'
@@ -325,70 +314,244 @@
 
         document.addEventListener('fullscreenchange', updateFullscreenState);
 
+        /* ===== UTF-8 safe base64 (replaces deprecated unescape/escape) ===== */
+        function encodeToBase64(str) {
+            var bytes = new TextEncoder().encode(str);
+            var binary = '';
+            for (var i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function decodeFromBase64(b64) {
+            var binary = atob(b64);
+            var bytes = new Uint8Array(binary.length);
+            for (var i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
+        }
+
+        /* ===== HTML escaping ===== */
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        /* ===== URL sanitizer ===== */
+        function isValidHttpUrl(url) {
+            if (!url) return false;
+            try {
+                var parsed = new URL(url);
+                return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        /* ===== localStorage auto-save ===== */
+        var SAVE_KEY = 'serverbuild_data';
+        var saveTimer = null;
+        var DEBOUNCE_MS = 300;
+
+        function showSaveIndicator(action) {
+            var indicator = document.getElementById('auto-save-indicator');
+            var textEl = document.getElementById('auto-save-text');
+            textEl.textContent = (action === 'loading' ? 'Loaded saved build' : 'Auto-saved');
+            indicator.classList.remove('fade');
+            indicator.classList.add('show');
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(function () {
+                indicator.classList.add('fade');
+                indicator.classList.remove('show');
+            }, 1800);
+        }
+
+        function saveBuild() {
+            if (isViewingMode) return;
+            try {
+                var build = collectBuild();
+                var json = JSON.stringify(build);
+                localStorage.setItem(SAVE_KEY, json);
+                document.getElementById('share-btn').classList.remove('terminal-blue');
+                showSaveIndicator('saving');
+            } catch (e) {
+                console.warn('Failed to auto-save build', e);
+            }
+        }
+
+        function scheduleSave() {
+            if (isViewingMode) return;
+            clearTimeout(window._saveDebounce);
+            window._saveDebounce = setTimeout(saveBuild, DEBOUNCE_MS);
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                var json = localStorage.getItem(SAVE_KEY);
+                if (!json) return false;
+                var build = JSON.parse(json);
+                if (!build || !Array.isArray(build.parts)) return false;
+
+                document.getElementById('team-name').value = build.team || '';
+                document.getElementById('server-name').value = build.server || '';
+
+                renderFixedSlots();
+                var container = document.getElementById('parts-container');
+
+                var fixedParts = {};
+                var otherParts = [];
+
+                for (var i = 0; i < build.parts.length; i++) {
+                    var part = build.parts[i];
+                    var isFixed = FIXED_SLOTS.some(function (s) { return s.key === part.key; });
+                    if (isFixed) fixedParts[part.key] = part;
+                    else otherParts.push(part);
+                }
+
+                for (var j = 0; j < FIXED_SLOTS.length; j++) {
+                    if (fixedParts[FIXED_SLOTS[j].key]) {
+                        setPartValues(FIXED_SLOTS[j].key, fixedParts[FIXED_SLOTS[j].key]);
+                    }
+                }
+
+                for (var k = 0; k < otherParts.length; k++) {
+                    addOtherSlot();
+                    var otherCards = container.querySelectorAll('div[id^="part-other-"]');
+                    var lastOther = otherCards[otherCards.length - 1];
+                    if (lastOther) {
+                        setPartValues(lastOther.id.replace('part-', ''), otherParts[k]);
+                    }
+                }
+
+                updateTotal();
+                flushLucideRefresh();
+                showSaveIndicator('loading');
+                return true;
+            } catch (e) {
+                console.warn('Failed to load saved build from localStorage', e);
+                return false;
+            }
+        }
+
+        function clearLocalStorage() {
+            try {
+                localStorage.removeItem(SAVE_KEY);
+            } catch (e) {
+                console.warn('Failed to clear localStorage', e);
+            }
+        }
+
+        /* ===== Init ===== */
         function init() {
             renderFixedSlots();
-            const hash = window.location.hash;
+            var hash = window.location.hash;
             if (hash.startsWith('#build=')) {
+                // Shared link takes priority
                 loadBuildFromHash(hash.slice(7));
+            } else {
+                // Restore local auto-save
+                loadFromLocalStorage();
             }
             lucide.createIcons();
         }
 
+        /* ===== Part card rendering ===== */
         function renderFixedSlots() {
-            const container = document.getElementById('parts-container');
+            var container = document.getElementById('parts-container');
             container.innerHTML = '';
-            FIXED_SLOTS.forEach(slot => {
+            for (var i = 0; i < FIXED_SLOTS.length; i++) {
+                var slot = FIXED_SLOTS[i];
                 container.appendChild(createPartCard(slot.key, slot.label, slot.icon, false));
-            });
+            }
         }
 
         function createPartCard(key, label, icon, removable) {
-            const card = document.createElement('div');
-            card.id = `part-${key}`;
-            card.className = 'p-4 rounded-lg code-block slide-in';
-            card.innerHTML = `
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="${icon}" class="w-4 h-4 terminal-blue"></i>
-                        ${removable ? `<input type="text" id="${key}-custom-label" value="${label}" class="bg-transparent border-b border-transparent text-sm font-bold text-white focus:border-[#58a6ff] focus:outline-none transition-colors" oninput="markChanged(); autoResizeInput(this);" style="width: ${label.length + 2}ch;">` : `<span class="text-sm font-bold text-white">${label}</span>`}
-                    </div>
-                    ${removable ? `<button onclick="removePart('${key}')" class="text-gray-500 hover:text-red-400 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>` : ''}
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div class="md:col-span-1 flex-shrink-0">
-                        <div id="${key}-thumb-wrap" class="part-thumb-placeholder text-xs">
-                            <i data-lucide="image" class="w-8 h-8 opacity-30"></i>
-                        </div>
-                    </div>
-                    <div class="md:col-span-3 space-y-2">
-                        <input type="text" id="${key}-name" placeholder="Part name" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="updateTotal()">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="${key}-price" placeholder="Price ($)" inputmode="decimal" class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white tabular-nums" oninput="sanitizePrice(this); updateTotal()">
-                            <input type="url" id="${key}-image" placeholder="Image URL (for preview)" class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="updateImage('${key}')">
-                        </div>
-                        <input type="url" id="${key}-link" placeholder="Product link" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="">
-                        <textarea id="${key}-notes" placeholder="Notes (optional)" rows="2" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white resize-y" oninput="markChanged()"></textarea>
-                    </div>
-                </div>
-            `;
+            var card = document.createElement('div');
+            card.id = 'part-' + key;
+            card.className = 'p-4 rounded-lg code-block slide-in part-card';
+
+            var sIcon = escapeHtml(icon);
+            var sLabel = escapeHtml(label);
+            var sKey = escapeHtml(key);
+
+            var html = '<div class="flex items-center justify-between mb-3">' +
+                '<div class="flex items-center gap-2">' +
+                '<i data-lucide="' + sIcon + '" class="w-4 h-4 terminal-blue"></i>';
+
+            if (removable) {
+                html += '<input type="text" id="' + sKey + '-custom-label" value="' + sLabel + '" ' +
+                    'class="bg-transparent border-b border-transparent text-sm font-bold text-white part-label focus:border-[#58a6ff] focus:outline-none transition-colors" ' +
+                    'oninput="markChanged(); autoResizeInput(this);" style="width: ' + (label.length + 2) + 'ch;">';
+            } else {
+                html += '<span class="text-sm font-bold text-white part-label">' + sLabel + '</span>';
+            }
+
+            html += '</div>';
+
+            if (removable) {
+                html += '<button onclick="removePart(\'' + sKey + '\')" ' +
+                    'class="text-gray-500 hover:text-red-400 transition-colors" ' +
+                    'aria-label="Remove ' + sLabel + ' part"><i data-lucide="x" class="w-4 h-4"></i></button>';
+            }
+            html += '</div>';
+
+            html += '<div class="grid grid-cols-1 md:grid-cols-4 gap-3 part-grid">' +
+                '<div class="md:col-span-1 flex-shrink-0">' +
+                '<div id="' + sKey + '-thumb-wrap" class="part-thumb-placeholder text-xs">' +
+                '<i data-lucide="image" class="w-8 h-8 opacity-30"></i>' +
+                '</div></div>' +
+                '<div class="md:col-span-3 space-y-2">' +
+                '<input type="text" id="' + sKey + '-name" placeholder="Part name" ' +
+                'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" ' +
+                'oninput="updateTotal()">' +
+                '<div class="grid grid-cols-2 gap-2">' +
+                '<input type="text" id="' + sKey + '-price" placeholder="Price ($)" inputmode="decimal" ' +
+                'class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white tabular-nums" ' +
+                'oninput="sanitizePrice(this); updateTotal()">' +
+                '<input type="url" id="' + sKey + '-image" placeholder="Image URL" ' +
+                'class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" ' +
+                'oninput="updateImage(\'' + sKey + '\')">' +
+                '</div>' +
+                '<input type="url" id="' + sKey + '-link" placeholder="Product link" ' +
+                'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white">' +
+                '<textarea id="' + sKey + '-notes" placeholder="Notes (optional)" rows="2" ' +
+                'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white resize-y" ' +
+                'oninput="markChanged()"></textarea>' +
+                '</div></div>';
+
+            card.innerHTML = html;
             return card;
         }
 
+        /* ===== Image preview ===== */
         function updateImage(key) {
-            const imgUrl = document.getElementById(`${key}-image`).value.trim();
-            const wrap = document.getElementById(`${key}-thumb-wrap`);
+            var imgUrl = document.getElementById(key + '-image').value.trim();
+            var wrap = document.getElementById(key + '-thumb-wrap');
+
             if (!imgUrl) {
                 wrap.className = 'part-thumb-placeholder text-xs';
                 wrap.innerHTML = '<i data-lucide="image" class="w-8 h-8 opacity-30"></i>';
-                lucide.createIcons();
+                scheduleLucideRefresh();
                 return;
             }
+
+            if (!isValidHttpUrl(imgUrl)) {
+                wrap.className = 'part-thumb-placeholder text-xs';
+                wrap.innerHTML = '<span class="text-red-400 text-xs">Invalid URL</span>';
+                return;
+            }
+
             wrap.className = '';
             wrap.innerHTML = '';
-            const img = document.createElement('img');
+            var img = document.createElement('img');
             img.src = imgUrl;
             img.className = 'part-thumb';
-            img.alt = document.getElementById(`${key}-name`).value || 'Part image';
+            img.loading = 'lazy';
+            var nameEl = document.getElementById(key + '-name');
+            img.alt = (nameEl && nameEl.value) ? nameEl.value : 'Part image';
             img.onerror = function () {
                 wrap.className = 'part-thumb-placeholder text-xs';
                 wrap.innerHTML = '<span class="text-red-400 text-xs">Failed to load</span>';
@@ -396,14 +559,16 @@
             wrap.appendChild(img);
         }
 
+        /* ===== Auto resize ===== */
         function autoResizeInput(el) {
             el.style.width = Math.max(8, (el.value || el.placeholder || '').length + 2) + 'ch';
         }
 
+        /* ===== Price helpers ===== */
         function parsePrice(val) {
             if (!val) return 0;
-            const cleaned = val.toString().replace(/[^0-9.\-]/g, '');
-            const num = parseFloat(cleaned);
+            var cleaned = val.toString().replace(/[^0-9.\-]/g, '');
+            var num = parseFloat(cleaned);
             return isNaN(num) ? 0 : num;
         }
 
@@ -412,104 +577,126 @@
         }
 
         function sanitizePrice(el) {
-            let val = el.value.replace(/[^0-9.,]/g, '');
-            const dots = val.split('.').length - 1;
+            var val = el.value.replace(/[^0-9.]/g, '');
+            var dots = val.split('.').length - 1;
             if (dots > 1) {
-                const parts = val.split('.');
+                var parts = val.split('.');
                 val = parts[0] + '.' + parts.slice(1).join('');
             }
+            if (val === '-' || val === '.') { val = '0' + val; }
+            if (val.startsWith('.')) { val = '0' + val; }
             el.value = val;
         }
 
+        /* ===== Total cost ===== */
         function updateTotal() {
-            const cards = document.querySelectorAll('#parts-container > div');
-            let total = 0;
-            cards.forEach(card => {
-                const id = card.id.replace('part-', '');
-                const priceInput = document.getElementById(`${id}-price`);
+            var cards = document.querySelectorAll('#parts-container > div');
+            var total = 0;
+            for (var i = 0; i < cards.length; i++) {
+                var id = cards[i].id.replace('part-', '');
+                var priceInput = document.getElementById(id + '-price');
                 if (priceInput) {
                     total += parsePrice(priceInput.value);
                 }
-            });
-            const display = document.getElementById('total-display');
-            display.textContent = `$${formatPrice(total)}`;
+            }
+            var display = document.getElementById('total-display');
+            display.textContent = '$' + formatPrice(total);
             display.classList.remove('pulse-update');
             void display.offsetWidth;
             display.classList.add('pulse-update');
             markChanged();
         }
 
+        /* ===== Changed indicator (debounced save) ===== */
         function markChanged() {
             if (!isViewingMode) {
                 document.getElementById('share-btn').classList.add('terminal-blue');
+                scheduleSave();
             }
         }
 
+        /* ===== Add / remove slots ===== */
         function addOtherSlot() {
             otherCount++;
-            const key = `other-${otherCount}`;
-            const counter = otherCount;
-            const container = document.getElementById('parts-container');
-            const card = createPartCard(key, `Other Part #${counter}`, 'package', true);
+            var key = 'other-' + otherCount;
+            var container = document.getElementById('parts-container');
+            var card = createPartCard(key, 'Other Part #' + otherCount, 'package', true);
             container.appendChild(card);
-            lucide.createIcons();
+            scheduleLucideRefresh();
             markChanged();
         }
 
         function removePart(key) {
-            const el = document.getElementById(`part-${key}`);
+            var el = document.getElementById('part-' + key);
             if (el) {
                 el.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
                 el.style.opacity = '0';
                 el.style.transform = 'translateX(20px)';
-                setTimeout(() => {
+                setTimeout(function () {
                     el.remove();
                     updateTotal();
-                    markChanged();
+                    scheduleSave();
                 }, 150);
             }
         }
 
+        /* ===== Collect / share / load build ===== */
         function collectBuild() {
-            const cards = document.querySelectorAll('#parts-container > div');
-            const parts = [];
-            cards.forEach(card => {
-                const id = card.id.replace('part-', '');
-                const name = document.getElementById(`${id}-name`)?.value?.trim() || '';
-                const price = parsePrice(document.getElementById(`${id}-price`)?.value);
-                const link = document.getElementById(`${id}-link`)?.value?.trim() || '';
-                const image = document.getElementById(`${id}-image`)?.value?.trim() || '';
-                const notes = document.getElementById(`${id}-notes`)?.value?.trim() || '';
-                const customLabel = document.getElementById(`${id}-custom-label`)?.value?.trim() || '';
-                parts.push({ key: id, name, price, link, image, notes, customLabel });
-            });
+            var cards = document.querySelectorAll('#parts-container > div');
+            var parts = [];
+            for (var i = 0; i < cards.length; i++) {
+                var id = cards[i].id.replace('part-', '');
+                var nameEl = document.getElementById(id + '-name');
+                var priceEl = document.getElementById(id + '-price');
+                var linkEl = document.getElementById(id + '-link');
+                var imageEl = document.getElementById(id + '-image');
+                var notesEl = document.getElementById(id + '-notes');
+                var labelEl = document.getElementById(id + '-custom-label');
+                parts.push({
+                    key: id,
+                    name: nameEl ? nameEl.value.trim() : '',
+                    price: parsePrice(priceEl ? priceEl.value : ''),
+                    link: linkEl ? linkEl.value.trim() : '',
+                    image: imageEl ? imageEl.value.trim() : '',
+                    notes: notesEl ? notesEl.value.trim() : '',
+                    customLabel: labelEl ? labelEl.value.trim() : ''
+                });
+            }
             return {
                 team: document.getElementById('team-name').value.trim(),
                 server: document.getElementById('server-name').value.trim(),
-                parts
+                parts: parts
             };
         }
 
         function buildHash(build) {
-            const json = JSON.stringify(build);
-            const encoded = btoa(unescape(encodeURIComponent(json)));
-            return `#build=${encoded}`;
+            var json = JSON.stringify(build);
+            var encoded = encodeToBase64(json);
+            return '#build=' + encoded;
         }
 
         function copyShareableLink() {
-            const build = collectBuild();
-            const hasData = build.team || build.server || build.parts.some(p => p.name || p.price > 0);
+            var build = collectBuild();
+            var hasData = build.team || build.server || build.parts.some(function (p) {
+                return p.name || p.price > 0;
+            });
             if (!hasData) {
                 showToast('Add some parts first!', '#f0883e');
                 return;
             }
-            const hash = buildHash(build);
-            const url = window.location.origin + window.location.pathname + hash;
-            navigator.clipboard.writeText(url).then(() => {
+            var hash = buildHash(build);
+            var url = window.location.origin + window.location.pathname + hash;
+
+            if (url.length > 4000) {
+                showToast('Build data is too large to share as a link.', '#f0883e');
+                return;
+            }
+
+            navigator.clipboard.writeText(url).then(function () {
                 showToast('Link copied to clipboard!', '#2ea043');
                 document.getElementById('share-btn').classList.remove('terminal-blue');
-            }).catch(() => {
-                const input = document.createElement('input');
+            }).catch(function () {
+                var input = document.createElement('input');
                 input.value = url;
                 document.body.appendChild(input);
                 input.select();
@@ -521,20 +708,21 @@
         }
 
         function showToast(msg, color) {
-            const toast = document.getElementById('link-copied-toast');
-            toast.querySelector('span') || (toast.lastChild.textContent = '');
-            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> ${msg}`;
+            var toast = document.getElementById('link-copied-toast');
+            var msgEl = document.getElementById('toast-message');
+            msgEl.textContent = msg;
             toast.style.borderColor = color + '/50';
             toast.style.color = color;
             toast.classList.remove('hidden');
-            lucide.createIcons();
-            setTimeout(() => toast.classList.add('hidden'), 2500);
+            scheduleLucideRefresh();
+            setTimeout(function () { toast.classList.add('hidden'); }, 2500);
         }
 
         function loadBuildFromHash(hash) {
             try {
-                const decoded = decodeURIComponent(escape(atob(hash)));
-                const build = JSON.parse(decoded);
+                var decoded = decodeFromBase64(hash);
+                var build = JSON.parse(decoded);
+
                 isViewingMode = true;
                 document.getElementById('team-name').value = build.team || '';
                 document.getElementById('server-name').value = build.server || '';
@@ -542,59 +730,59 @@
                 document.getElementById('server-name').readOnly = true;
 
                 document.getElementById('viewing-team').textContent = build.team || 'Unknown';
-                document.getElementById('viewing-server').textContent = `"${build.server || 'Untitled'}"`;
+                document.getElementById('viewing-server').textContent = '"' + (build.server || 'Untitled') + '"';
                 document.getElementById('viewing-banner').classList.remove('hidden');
 
                 document.getElementById('build-form-section').classList.add('pointer-events-none', 'opacity-70');
-                const shareBtnRow = document.querySelector('#build-form-section > *:first-child');
 
                 if (build.parts) {
                     renderFixedSlots();
-                    const fixedMap = {};
-                    FIXED_SLOTS.forEach(s => fixedMap[s.key] = null);
 
-                    let otherIdx = 0;
-                    build.parts.forEach((part, i) => {
-                        const fixedSlot = FIXED_SLOTS.find(s => s.key === part.key);
-                        if (fixedSlot && fixedMap[part.key] === null) {
-                            fixedMap[part.key] = part;
+                    var fixedParts = {};
+                    var otherParts = [];
+
+                    for (var i = 0; i < build.parts.length; i++) {
+                        var part = build.parts[i];
+                        var isFixed = FIXED_SLOTS.some(function (s) { return s.key === part.key; });
+                        if (isFixed) {
+                            fixedParts[part.key] = part;
                         } else {
-                            addOtherSlot();
-                            otherIdx++;
+                            otherParts.push(part);
                         }
-                    });
+                    }
 
-                    FIXED_SLOTS.forEach(slot => {
-                        const part = fixedMap[slot.key];
-                        if (part) {
-                            setPartValues(slot.key, part);
+                    for (var j = 0; j < FIXED_SLOTS.length; j++) {
+                        if (fixedParts[FIXED_SLOTS[j].key]) {
+                            setPartValues(FIXED_SLOTS[j].key, fixedParts[FIXED_SLOTS[j].key]);
                         }
-                    });
+                    }
 
-                    const otherParts = build.parts.filter(p => !FIXED_SLOTS.find(s => s.key === p.key));
-                    const otherCards = document.querySelectorAll('#parts-container > div[id^="part-other-"]');
-                    otherParts.forEach((part, i) => {
-                        if (otherCards[i]) {
-                            const otherKey = otherCards[i].id.replace('part-', '');
-                            setPartValues(otherKey, part);
+                    for (var k = 0; k < otherParts.length; k++) {
+                        addOtherSlot();
+                        var otherCards = document.querySelectorAll('#parts-container > div[id^="part-other-"]');
+                        var lastOther = otherCards[otherCards.length - 1];
+                        if (lastOther) {
+                            setPartValues(lastOther.id.replace('part-', ''), otherParts[k]);
                         }
-                    });
+                    }
                 }
 
                 updateTotal();
-                lucide.createIcons();
+                flushLucideRefresh();
             } catch (e) {
                 console.warn('Failed to load build from hash', e);
+                showToast('Could not load shared build.', '#f85149');
             }
         }
 
         function setPartValues(key, part) {
-            const nameEl = document.getElementById(`${key}-name`);
-            const priceEl = document.getElementById(`${key}-price`);
-            const linkEl = document.getElementById(`${key}-link`);
-            const imageEl = document.getElementById(`${key}-image`);
-            const notesEl = document.getElementById(`${key}-notes`);
-            const labelEl = document.getElementById(`${key}-custom-label`);
+            var nameEl = document.getElementById(key + '-name');
+            var priceEl = document.getElementById(key + '-price');
+            var linkEl = document.getElementById(key + '-link');
+            var imageEl = document.getElementById(key + '-image');
+            var notesEl = document.getElementById(key + '-notes');
+            var labelEl = document.getElementById(key + '-custom-label');
+
             if (nameEl && part.name) nameEl.value = part.name;
             if (priceEl && part.price) priceEl.value = part.price;
             if (linkEl && part.link) linkEl.value = part.link;
@@ -603,57 +791,75 @@
                 updateImage(key);
             }
             if (notesEl && part.notes) notesEl.value = part.notes;
-            if (labelEl && part.customLabel) {
-                labelEl.value = part.customLabel;
-            }
+            if (labelEl && part.customLabel) labelEl.value = part.customLabel;
         }
 
         function closeViewingMode() {
-            window.location.hash = '';
-            window.location.reload();
+            if (confirm('Close viewing mode? This will return you to the editor.')) {
+                window.location.hash = '';
+                window.location.reload();
+            }
         }
 
         function clearBuild() {
             if (!confirm('Clear all parts? This cannot be undone.')) return;
+
+            // Clear localStorage too
+            clearLocalStorage();
+
+            isViewingMode = false;
+            document.getElementById('viewing-banner').classList.add('hidden');
+            document.getElementById('viewing-team').textContent = '';
+            document.getElementById('viewing-server').textContent = '';
+            document.getElementById('build-form-section').classList.remove('pointer-events-none', 'opacity-70');
+
             document.getElementById('team-name').value = '';
             document.getElementById('server-name').value = '';
             document.getElementById('team-name').readOnly = false;
             document.getElementById('server-name').readOnly = false;
+
+            otherCount = 0;
             renderFixedSlots();
-            lucide.createIcons();
+            flushLucideRefresh();
             updateTotal();
-            markChanged();
         }
 
-        // --- Timer logic ---
-        let timerRemaining = 45 * 60;
-        let timerInterval = null;
-        let timerStarted = false;
+        /* ===== Timer logic ===== */
+        var timerRemaining = 45 * 60;
+        var timerInterval = null;
+        var timerStarted = false;
+        var timerExpired = false;
 
         function parseTimerInputs() {
-            const minInput = document.getElementById('timer-minutes').value.replace(/\D/g, '');
-            const secInput = document.getElementById('timer-seconds').value.replace(/\D/g, '');
-            const mins = parseInt(minInput) || 0;
-            const secs = parseInt(secInput) || 0;
+            var minInput = document.getElementById('timer-minutes').value.replace(/\D/g, '');
+            var secInput = document.getElementById('timer-seconds').value.replace(/\D/g, '');
+            var mins = parseInt(minInput, 10) || 0;
+            var secs = Math.min(59, parseInt(secInput, 10) || 0);
             return Math.max(0, mins * 60 + secs);
         }
 
         function sanitizeTimerInput(el) {
             el.value = el.value.replace(/[^0-9]/g, '');
             if (el.value.length > 2) el.value = el.value.slice(0, 2);
+            var num = parseInt(el.value, 10) || 0;
+            if (el.id === 'timer-seconds' && num > 59) {
+                el.value = '59';
+            }
         }
 
         function updateTimerFromInput() {
-            sanitizeTimerInput(document.getElementById('timer-minutes'));
-            sanitizeTimerInput(document.getElementById('timer-seconds'));
+            var minEl = document.getElementById('timer-minutes');
+            var secEl = document.getElementById('timer-seconds');
+            sanitizeTimerInput(minEl);
+            sanitizeTimerInput(secEl);
             if (!timerInterval) {
                 timerRemaining = parseTimerInputs();
             }
         }
 
         function updateTimerDisplay() {
-            const m = Math.floor(timerRemaining / 60).toString().padStart(2, '0');
-            const s = (timerRemaining % 60).toString().padStart(2, '0');
+            var m = Math.floor(timerRemaining / 60).toString().padStart(2, '0');
+            var s = (timerRemaining % 60).toString().padStart(2, '0');
             document.getElementById('timer-minutes').value = m;
             document.getElementById('timer-seconds').value = s;
         }
@@ -665,23 +871,39 @@
 
         function startTimer() {
             if (timerInterval) return;
+
             if (!timerStarted) {
                 timerRemaining = parseTimerInputs();
                 timerStarted = true;
             }
+
+            // If timer expired, reset it first
+            if (timerExpired) {
+                resetTimer();
+                timerExpired = false;
+                return;
+            }
+
             if (timerRemaining <= 0) return;
+
             document.getElementById('timer-start').disabled = true;
             document.getElementById('timer-stop').disabled = false;
             setTimerInputs(false);
             document.getElementById('timer-display').classList.remove('timer-end');
-            timerInterval = setInterval(() => {
+
+            timerInterval = setInterval(function () {
                 timerRemaining--;
                 if (timerRemaining <= 0) {
                     timerRemaining = 0;
-                    stopTimer();
-                    document.getElementById('timer-start').disabled = true;
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerExpired = true;
                     updateTimerDisplay();
                     document.getElementById('timer-display').classList.add('timer-end');
+                    document.getElementById('timer-start').disabled = false;
+                    document.getElementById('timer-stop').disabled = true;
+                    setTimerInputs(true);
+                    timerStarted = false;
                     return;
                 }
                 updateTimerDisplay();
@@ -700,14 +922,27 @@
         function resetTimer() {
             stopTimer();
             timerStarted = false;
+            timerExpired = false;
+            timerRemaining = 45 * 60;
             document.getElementById('timer-start').disabled = false;
             document.getElementById('timer-minutes').value = '45';
             document.getElementById('timer-seconds').value = '00';
-            timerRemaining = 45 * 60;
             document.getElementById('timer-display').classList.remove('timer-end');
             setTimerInputs(true);
         }
 
+        /* ===== Cleanup on page unload ===== */
+        window.addEventListener('beforeunload', function () {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            // Flush any pending save and do a final save
+            clearTimeout(window._saveDebounce);
+            saveBuild();
+        });
+
+        /* ===== Boot ===== */
         init();
     </script>
 </body>
