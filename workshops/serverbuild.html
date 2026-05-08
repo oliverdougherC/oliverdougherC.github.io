@@ -188,9 +188,9 @@
                 </h3>
                 <div class="flex items-center justify-between flex-wrap gap-4">
                     <div id="timer-display" class="text-4xl md:text-5xl font-bold tabular-nums tracking-wider flex items-center" role="timer" aria-live="polite" aria-label="Workshop countdown timer">
-                        <input id="timer-minutes" type="text" inputmode="numeric" value="45" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()" aria-label="Timer minutes">
+                        <input id="timer-minutes" type="text" inputmode="numeric" value="45" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput(this)" onfocus="this.select()" aria-label="Timer minutes">
                         <span class="text-4xl md:text-5xl font-bold text-gray-500 mx-1 select-none">:</span>
-                        <input id="timer-seconds" type="text" inputmode="numeric" value="00" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()" aria-label="Timer seconds">
+                        <input id="timer-seconds" type="text" inputmode="numeric" value="00" maxlength="2" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput(this)" onfocus="this.select()" aria-label="Timer seconds">
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="startTimer()" id="timer-start" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" aria-label="Start timer">
@@ -255,12 +255,12 @@
                 </div>
             </div>
 
-            <div id="summary-card" class="hidden p-4 rounded-lg code-block relative overflow-hidden">
+            <div id="summary-card" class="hidden p-5 rounded-lg code-block relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-[#d77b3f]"></div>
-                <h3 class="text-sm font-bold accent-orange mb-3 flex items-center">
-                    <i data-lucide="clipboard-list" class="w-4 h-4 mr-2"></i> Summary
+                <h3 class="text-lg font-bold accent-orange mb-4 flex items-center">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 mr-3"></i> Summary
                 </h3>
-                <ul id="summary-list" class="text-xs text-gray-400 space-y-2 list-none"></ul>
+                <ul id="summary-list" class="text-base text-gray-300 space-y-3 list-none"></ul>
             </div>
         </section>
 
@@ -362,6 +362,7 @@
 
         /* ===== localStorage auto-save ===== */
         const SAVE_KEY = 'serverbuild_data';
+        const TIMER_KEY = 'serverbuild_timer';
         let saveTimer = null;
         const DEBOUNCE_MS = 300;
 
@@ -389,6 +390,18 @@
                 if (!skipIndicator) showSaveIndicator('saving');
             } catch (e) {
                 console.warn('Failed to auto-save build', e);
+                var indicator = document.getElementById('auto-save-indicator');
+                var textEl = document.getElementById('auto-save-text');
+                textEl.textContent = 'Failed to save';
+                indicator.classList.remove('fade');
+                indicator.classList.add('show');
+                indicator.style.color = '#f85149';
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(function () {
+                    indicator.classList.add('fade');
+                    indicator.classList.remove('show');
+                    indicator.style.color = '';
+                }, 3000);
             }
         }
 
@@ -408,7 +421,6 @@
                 document.getElementById('team-name').value = build.team || '';
                 document.getElementById('server-name').value = build.server || '';
 
-                renderFixedSlots();
                 const container = document.getElementById('parts-container');
 
                 const fixedParts = {};
@@ -465,6 +477,7 @@
                 // Restore local auto-save
                 loadFromLocalStorage();
             }
+            loadTimerState();
             lucide.createIcons();
         }
 
@@ -494,7 +507,7 @@
             if (removable) {
                 html += '<input type="text" id="' + sKey + '-custom-label" value="' + sLabel + '" ' +
                     'class="bg-transparent border-b border-transparent text-sm font-bold text-white part-label focus:border-[#58a6ff] focus:outline-none transition-colors" ' +
-                    'oninput="markChanged(); autoResizeInput(this);" style="width: ' + (label.length + 2) + 'ch;">';
+                    'aria-label="Custom part label" oninput="markChanged(); autoResizeInput(this);" style="width: ' + (label.length + 2) + 'ch;">';
             } else {
                 html += '<span class="text-sm font-bold text-white part-label">' + sLabel + '</span>';
             }
@@ -516,21 +529,21 @@
                 '<div class="md:col-span-3 space-y-2">' +
                 '<input type="text" id="' + sKey + '-name" placeholder="Part name" ' +
                 'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" ' +
-                'oninput="updateTotal()">' +
+                'aria-label="' + sLabel + ' part name" oninput="updateTotal(); updateImageAlt(\'' + sKey + '\')">' +
                 '<div class="grid grid-cols-2 gap-2">' +
                 '<input type="text" id="' + sKey + '-price" placeholder="Price ($)" inputmode="decimal" ' +
                 'class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white tabular-nums" ' +
-                'oninput="sanitizePrice(this); updateTotal()">' +
+                'aria-label="' + sLabel + ' price" oninput="sanitizePrice(this); updateTotal()">' +
                 '<input type="url" id="' + sKey + '-image" placeholder="Image URL" ' +
                 'class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" ' +
-                'oninput="updateImage(\'' + sKey + '\'); markChanged()">' +
+                'aria-label="' + sLabel + ' image URL" oninput="updateImage(\'' + sKey + '\'); markChanged()">' +
                 '</div>' +
                 '<input type="url" id="' + sKey + '-link" placeholder="Product link" ' +
                 'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" ' +
-                'oninput="markChanged()">' +
+                'aria-label="' + sLabel + ' product link" oninput="markChanged()">' +
                 '<textarea id="' + sKey + '-notes" placeholder="Notes (optional)" rows="2" ' +
                 'class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white resize-y" ' +
-                'oninput="markChanged()"></textarea>' +
+                'aria-label="' + sLabel + ' notes" oninput="markChanged()"></textarea>' +
                 '</div></div>';
 
             card.innerHTML = html;
@@ -546,14 +559,12 @@
                 wrap.className = 'part-thumb-placeholder text-xs';
                 wrap.innerHTML = '<i data-lucide="image" class="w-8 h-8 opacity-30"></i>';
                 scheduleLucideRefresh();
-                markChanged();
                 return;
             }
 
             if (!isValidHttpUrl(imgUrl)) {
                 wrap.className = 'part-thumb-placeholder text-xs';
                 wrap.innerHTML = '<span class="text-red-400 text-xs">Invalid URL</span>';
-                markChanged();
                 return;
             }
 
@@ -570,6 +581,17 @@
                 wrap.innerHTML = '<span class="text-red-400 text-xs">Failed to load</span>';
             };
             wrap.appendChild(img);
+        }
+
+        /* ===== Update image alt when name changes ===== */
+        function updateImageAlt(key) {
+            const nameEl = document.getElementById(key + '-name');
+            const wrap = document.getElementById(key + '-thumb-wrap');
+            if (!nameEl || !wrap) return;
+            const img = wrap.querySelector('img');
+            if (img) {
+                img.alt = nameEl.value || 'Part image';
+            }
         }
 
         /* ===== Auto resize ===== */
@@ -615,8 +637,11 @@
             const display = document.getElementById('total-display');
             display.textContent = '$' + formatPrice(total);
             display.classList.remove('pulse-update');
-            void display.offsetWidth;
-            display.classList.add('pulse-update');
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    display.classList.add('pulse-update');
+                });
+            });
             markChanged();
         }
 
@@ -636,6 +661,7 @@
             const card = createPartCard(key, 'Other Part #' + otherCount, 'package', true);
             container.appendChild(card);
             scheduleLucideRefresh();
+            flushLucideRefresh();
             markChanged();
         }
 
@@ -691,17 +717,19 @@
         function copyShareableLink() {
             const build = collectBuild();
             const hasData = build.team || build.server || build.parts.some(function (p) {
-                return p.name || p.price > 0;
+                return p.name || p.price > 0 || p.notes || p.link;
             });
             if (!hasData) {
-                showToast('Add some parts first!', '#f0883e');
+                showToast('Nothing to share yet — add some parts or notes first.', '#f0883e');
                 return;
             }
             const hash = buildHash(build);
             const url = window.location.origin + window.location.pathname + hash;
 
-            if (url.length > 4000) {
-                showToast('Build data is too large to share as a link.', '#f0883e');
+            if (url.length > 2000) {
+                if (confirm('Build is too large for a URL link. Copy build data as JSON to clipboard instead?')) {
+                    copyBuildAsJson(build);
+                }
                 return;
             }
 
@@ -716,6 +744,25 @@
                 document.execCommand('copy');
                 document.body.removeChild(input);
                 showToast('Link copied to clipboard!', '#2ea043');
+                document.getElementById('share-btn').classList.remove('terminal-blue');
+            });
+        }
+
+        function copyBuildAsJson(build) {
+            var json = JSON.stringify(build, null, 2);
+            navigator.clipboard.writeText(json).then(function () {
+                showToast('Build JSON copied to clipboard!', '#2ea043');
+                document.getElementById('share-btn').classList.remove('terminal-blue');
+            }).catch(function () {
+                var textarea = document.createElement('textarea');
+                textarea.value = json;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Build JSON copied to clipboard!', '#2ea043');
                 document.getElementById('share-btn').classList.remove('terminal-blue');
             });
         }
@@ -749,7 +796,7 @@
                 document.getElementById('viewing-server').textContent = '"' + (build.server || 'Untitled') + '"';
                 document.getElementById('viewing-banner').classList.remove('hidden');
 
-                document.getElementById('build-form-section').classList.add('pointer-events-none', 'opacity-70');
+                document.getElementById('build-form-section').classList.add('pointer-events-none');
 
                 if (build.parts) {
                     renderFixedSlots();
@@ -806,7 +853,7 @@
                 var li = document.createElement('li');
                 li.className = 'flex items-start gap-2';
                 var labelSpan = document.createElement('span');
-                labelSpan.className = 'terminal-green font-bold';
+                labelSpan.className = 'terminal-green font-semibold text-lg';
                 labelSpan.textContent = label;
                 var colonSpan = document.createElement('span');
                 colonSpan.textContent = ': ';
@@ -862,7 +909,10 @@
             document.getElementById('viewing-banner').classList.add('hidden');
             document.getElementById('viewing-team').textContent = '';
             document.getElementById('viewing-server').textContent = '';
-            document.getElementById('build-form-section').classList.remove('pointer-events-none', 'opacity-70');
+            document.getElementById('build-form-section').classList.remove('pointer-events-none');
+            document.getElementById('instructions-section').style.display = '';
+            document.getElementById('timer-card').style.display = '';
+            document.getElementById('action-buttons').style.display = '';
 
             document.getElementById('team-name').value = '';
             document.getElementById('server-name').value = '';
@@ -899,11 +949,8 @@
             }
         }
 
-        function updateTimerFromInput() {
-            const minEl = document.getElementById('timer-minutes');
-            const secEl = document.getElementById('timer-seconds');
-            sanitizeTimerInput(minEl);
-            sanitizeTimerInput(secEl);
+        function updateTimerFromInput(el) {
+            sanitizeTimerInput(el);
             lastCustomTimerSeconds = parseTimerInputs();
             if (!timerInterval) {
                 timerRemaining = lastCustomTimerSeconds;
@@ -970,6 +1017,7 @@
             document.getElementById('timer-start').disabled = false;
             document.getElementById('timer-stop').disabled = true;
             setTimerInputs(true);
+            saveTimerState();
         }
 
         function resetTimer() {
@@ -984,6 +1032,54 @@
             document.getElementById('timer-seconds').value = s;
             document.getElementById('timer-display').classList.remove('timer-end');
             setTimerInputs(true);
+            saveTimerState();
+        }
+
+        function saveTimerState() {
+            try {
+                var state = {
+                    remaining: timerRemaining,
+                    started: timerStarted,
+                    expired: timerExpired,
+                    customSeconds: lastCustomTimerSeconds,
+                    pausedAt: timerInterval ? Date.now() : null
+                };
+                localStorage.setItem(TIMER_KEY, JSON.stringify(state));
+            } catch (e) { /* silently ignore timer save failures */ }
+        }
+
+        function loadTimerState() {
+            try {
+                var json = localStorage.getItem(TIMER_KEY);
+                if (!json) return;
+                var state = JSON.parse(json);
+                if (!state || typeof state.remaining !== 'number') return;
+                timerRemaining = state.remaining;
+                lastCustomTimerSeconds = state.customSeconds || state.remaining;
+
+                if (state.pausedAt && state.started && !state.expired) {
+                    var elapsed = Math.floor((Date.now() - state.pausedAt) / 1000);
+                    timerRemaining = Math.max(0, timerRemaining - elapsed);
+                    if (timerRemaining <= 0) {
+                        timerRemaining = 0;
+                        timerExpired = true;
+                        document.getElementById('timer-display').classList.add('timer-end');
+                    } else {
+                        timerStarted = true;
+                        startTimer();
+                    }
+                } else if (state.expired) {
+                    timerExpired = true;
+                    timerRemaining = 0;
+                } else {
+                    timerStarted = false;
+                    timerExpired = false;
+                }
+
+                if (!timerInterval) {
+                    updateTimerDisplay();
+                }
+            } catch (e) { /* silently ignore timer load failures */ }
         }
 
         /* ===== Cleanup on page unload ===== */
