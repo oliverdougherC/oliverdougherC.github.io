@@ -620,7 +620,7 @@
             }
             if (val === '.') { val = '0' + val; }
             if (val.startsWith('.')) { val = '0' + val; }
-            el.value = val;
+            el.value = val ? '$ ' + val : '';
         }
 
         /* ===== Total cost ===== */
@@ -882,7 +882,7 @@
             const labelEl = document.getElementById(key + '-custom-label');
 
             if (nameEl && part.name) nameEl.value = part.name;
-            if (priceEl && part.price) priceEl.value = part.price;
+            if (priceEl && part.price) priceEl.value = '$ ' + part.price;
             if (linkEl && part.link) linkEl.value = part.link;
             if (imageEl && part.image) {
                 imageEl.value = part.image;
