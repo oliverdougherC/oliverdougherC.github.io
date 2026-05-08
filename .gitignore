@@ -3,3 +3,4 @@ output/
 .playwright-mcp/
 .omx/
 progress.md
+inspection-reports/

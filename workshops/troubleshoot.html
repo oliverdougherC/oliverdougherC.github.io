@@ -296,21 +296,7 @@
 
     <!-- Scripts -->
     <script>
-        // Initialize Icons
         lucide.createIcons();
-
-        // Simple Copy Function
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            // Optional: You could show a toast notification here
-            // but we'll keep it simple as per "no alerts" rule.
-        }
     </script>
 </body>
 </html>
