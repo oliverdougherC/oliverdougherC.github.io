@@ -35,6 +35,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .slide-in { animation: slide-in 0.2s ease-out; }
+        @keyframes timer-end-flash {
+            0%, 100% { color: #f85149; }
+            50% { color: #fff; }
+        }
+        .timer-end { animation: timer-end-flash 1s ease-in-out infinite; }
+        input#timer-minutes:disabled, input#timer-seconds:disabled { opacity: 0.9; border-color: transparent !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -50,6 +56,9 @@
             <div class="flex items-center gap-2">
                 <a href="../" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors">Hub</a>
                 <a href="./" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors">Workshops</a>
+                <button onclick="toggleFullscreen()" id="fs-btn" class="text-xs text-gray-400 border border-[#30363d] px-2 py-1 rounded hover:text-white hover:border-[#58a6ff] transition-colors flex items-center gap-1" title="Toggle fullscreen">
+                    <i data-lucide="maximize-2" class="w-3 h-3"></i> Expand
+                </button>
             </div>
         </div>
     </header>
@@ -111,6 +120,31 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="p-4 rounded-lg code-block relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-[#bc8cff]"></div>
+                <h3 class="text-sm font-bold text-[#bc8cff] mb-3 flex items-center">
+                    <i data-lucide="timer" class="w-4 h-4 mr-2"></i> Workshop Timer
+                </h3>
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div id="timer-display" class="text-4xl md:text-5xl font-bold tabular-nums tracking-wider flex items-center">
+                        <input id="timer-minutes" type="text" inputmode="numeric" value="45" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()">
+                        <span class="text-4xl md:text-5xl font-bold text-gray-500 mx-1 select-none">:</span>
+                        <input id="timer-seconds" type="text" inputmode="numeric" value="00" class="w-16 bg-transparent border-b border-[#30363d] text-4xl md:text-5xl font-bold text-white tabular-nums tracking-wider focus:border-[#bc8cff] focus:outline-none transition-colors" oninput="updateTimerFromInput()" onfocus="this.select()">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="startTimer()" id="timer-start" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Start
+                        </button>
+                        <button onclick="stopTimer()" id="timer-stop" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1" disabled>
+                            <i data-lucide="pause" class="w-3.5 h-3.5"></i> Stop
+                        </button>
+                        <button onclick="resetTimer()" id="timer-reset" class="terminal-border px-3 py-1.5 rounded text-xs text-gray-400 hover:text-white hover:border-[#bc8cff] transition-colors flex items-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="space-y-4" id="build-form-section">
@@ -136,11 +170,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs text-gray-400 mb-1 block">Team Name</label>
-                        <input type="text" id="team-name" placeholder="e.g. Team Silicon" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
+                        <input type="text" id="team-name" placeholder='e.g. "Team Peter"' class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
                     </div>
                     <div>
                         <label class="text-xs text-gray-400 mb-1 block">Server Name</label>
-                        <input type="text" id="server-name" placeholder='e.g. "The Overkill"' class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
+                        <input type="text" id="server-name" placeholder='e.g. "The Competer"' class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="markChanged()">
                     </div>
                 </div>
             </div>
@@ -186,6 +220,111 @@
         let otherCount = 0;
         let isViewingMode = false;
 
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function applyFsStyles(enabled) {
+            const main = document.querySelector('main');
+            const headerDiv = document.querySelector('header > div');
+            const objectiveCard = document.querySelector('section:first-of-type > div:first-child');
+            const rulesTipsGrid = document.querySelector('section:first-of-type > div.grid');
+            const rulesTipsCards = rulesTipsGrid ? rulesTipsGrid.querySelectorAll(':scope > div') : [];
+            const totalDisplay = document.getElementById('total-display');
+            const partsCards = document.querySelectorAll('#parts-container > div');
+
+            if (enabled) {
+                main.style.maxWidth = '96vw';
+                headerDiv.style.maxWidth = '96vw';
+                if (objectiveCard) {
+                    objectiveCard.style.padding = '1.25rem 1.5rem';
+                }
+                const h2 = objectiveCard ? objectiveCard.querySelector('h2') : null;
+                if (h2) h2.style.fontSize = '1.5rem';
+                const pObj = objectiveCard ? objectiveCard.querySelector('p') : null;
+                if (pObj) pObj.style.fontSize = '1.1rem';
+                if (rulesTipsGrid) rulesTipsGrid.style.gap = '1.5rem';
+                rulesTipsCards.forEach(card => {
+                    card.style.padding = '1.25rem 1.5rem';
+                    const h3 = card.querySelector('h3');
+                    if (h3) h3.style.fontSize = '1rem';
+                    const lists = card.querySelectorAll('ol, ul');
+                    lists.forEach(l => l.style.fontSize = '0.9rem');
+                });
+                if (totalDisplay) totalDisplay.style.fontSize = '3rem';
+                const buildH2 = document.querySelector('#build-form-section > div:first-child h2');
+                if (buildH2) buildH2.style.fontSize = '1.5rem';
+                const nameCard = document.querySelector('#build-form-section > div.code-block');
+                if (nameCard) nameCard.style.padding = '1.25rem 1.5rem';
+                partsCards.forEach(card => {
+                    card.style.padding = '1.25rem 1.5rem';
+                    const inputs = card.querySelectorAll('input');
+                    inputs.forEach(inp => {
+                        inp.style.fontSize = '1rem';
+                        inp.style.padding = '0.65rem 0.75rem';
+                    });
+                    const grid = card.querySelector(':scope > .grid, :scope > div > .grid');
+                    if (grid) grid.style.gap = '0.75rem';
+                    const label = card.querySelector('.text-sm.font-bold, span.text-sm');
+                    if (label) label.style.fontSize = '1rem';
+                });
+            } else {
+                main.style.maxWidth = '';
+                main.style.removeProperty('max-width');
+                headerDiv.style.maxWidth = '';
+                headerDiv.style.removeProperty('max-width');
+                if (objectiveCard) objectiveCard.style.padding = '';
+                const h2 = objectiveCard ? objectiveCard.querySelector('h2') : null;
+                if (h2) h2.style.fontSize = '';
+                const pObj = objectiveCard ? objectiveCard.querySelector('p') : null;
+                if (pObj) pObj.style.fontSize = '';
+                if (rulesTipsGrid) rulesTipsGrid.style.gap = '';
+                rulesTipsCards.forEach(card => {
+                    card.style.padding = '';
+                    const h3 = card.querySelector('h3');
+                    if (h3) h3.style.fontSize = '';
+                    const lists = card.querySelectorAll('ol, ul');
+                    lists.forEach(l => l.style.fontSize = '');
+                });
+                if (totalDisplay) totalDisplay.style.fontSize = '';
+                const buildH2 = document.querySelector('#build-form-section > div:first-child h2');
+                if (buildH2) buildH2.style.fontSize = '';
+                const nameCard = document.querySelector('#build-form-section > div.code-block');
+                if (nameCard) nameCard.style.padding = '';
+                partsCards.forEach(card => {
+                    card.style.padding = '';
+                    const inputs = card.querySelectorAll('input');
+                    inputs.forEach(inp => {
+                        inp.style.fontSize = '';
+                        inp.style.padding = '';
+                    });
+                    const grid = card.querySelector(':scope > .grid, :scope > div > .grid');
+                    if (grid) grid.style.gap = '';
+                    const label = card.querySelector('.text-sm.font-bold, span.text-sm');
+                    if (label) label.style.fontSize = '';
+                });
+            }
+        }
+
+        function updateFullscreenState() {
+            const enabled = !!document.fullscreenElement;
+            document.body.classList.toggle('fs-mode', enabled);
+            applyFsStyles(enabled);
+            const btn = document.getElementById('fs-btn');
+            if (btn) {
+                btn.innerHTML = enabled
+                    ? '<i data-lucide="minimize-2" class="w-3 h-3"></i> Collapse'
+                    : '<i data-lucide="maximize-2" class="w-3 h-3"></i> Expand';
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenState);
+
         function init() {
             renderFixedSlots();
             const hash = window.location.hash;
@@ -228,6 +367,7 @@
                             <input type="url" id="${key}-image" placeholder="Image URL (for preview)" class="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="updateImage('${key}')">
                         </div>
                         <input type="url" id="${key}-link" placeholder="Product link" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white" oninput="">
+                        <textarea id="${key}-notes" placeholder="Notes (optional)" rows="2" class="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-sm text-white resize-y" oninput="markChanged()"></textarea>
                     </div>
                 </div>
             `;
@@ -339,8 +479,9 @@
                 const price = parsePrice(document.getElementById(`${id}-price`)?.value);
                 const link = document.getElementById(`${id}-link`)?.value?.trim() || '';
                 const image = document.getElementById(`${id}-image`)?.value?.trim() || '';
+                const notes = document.getElementById(`${id}-notes`)?.value?.trim() || '';
                 const customLabel = document.getElementById(`${id}-custom-label`)?.value?.trim() || '';
-                parts.push({ key: id, name, price, link, image, customLabel });
+                parts.push({ key: id, name, price, link, image, notes, customLabel });
             });
             return {
                 team: document.getElementById('team-name').value.trim(),
@@ -452,6 +593,7 @@
             const priceEl = document.getElementById(`${key}-price`);
             const linkEl = document.getElementById(`${key}-link`);
             const imageEl = document.getElementById(`${key}-image`);
+            const notesEl = document.getElementById(`${key}-notes`);
             const labelEl = document.getElementById(`${key}-custom-label`);
             if (nameEl && part.name) nameEl.value = part.name;
             if (priceEl && part.price) priceEl.value = part.price;
@@ -460,6 +602,7 @@
                 imageEl.value = part.image;
                 updateImage(key);
             }
+            if (notesEl && part.notes) notesEl.value = part.notes;
             if (labelEl && part.customLabel) {
                 labelEl.value = part.customLabel;
             }
@@ -480,6 +623,89 @@
             lucide.createIcons();
             updateTotal();
             markChanged();
+        }
+
+        // --- Timer logic ---
+        let timerRemaining = 45 * 60;
+        let timerInterval = null;
+        let timerStarted = false;
+
+        function parseTimerInputs() {
+            const minInput = document.getElementById('timer-minutes').value.replace(/\D/g, '');
+            const secInput = document.getElementById('timer-seconds').value.replace(/\D/g, '');
+            const mins = parseInt(minInput) || 0;
+            const secs = parseInt(secInput) || 0;
+            return Math.max(0, mins * 60 + secs);
+        }
+
+        function sanitizeTimerInput(el) {
+            el.value = el.value.replace(/[^0-9]/g, '');
+            if (el.value.length > 2) el.value = el.value.slice(0, 2);
+        }
+
+        function updateTimerFromInput() {
+            sanitizeTimerInput(document.getElementById('timer-minutes'));
+            sanitizeTimerInput(document.getElementById('timer-seconds'));
+            if (!timerInterval) {
+                timerRemaining = parseTimerInputs();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerRemaining / 60).toString().padStart(2, '0');
+            const s = (timerRemaining % 60).toString().padStart(2, '0');
+            document.getElementById('timer-minutes').value = m;
+            document.getElementById('timer-seconds').value = s;
+        }
+
+        function setTimerInputs(enabled) {
+            document.getElementById('timer-minutes').disabled = !enabled;
+            document.getElementById('timer-seconds').disabled = !enabled;
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            if (!timerStarted) {
+                timerRemaining = parseTimerInputs();
+                timerStarted = true;
+            }
+            if (timerRemaining <= 0) return;
+            document.getElementById('timer-start').disabled = true;
+            document.getElementById('timer-stop').disabled = false;
+            setTimerInputs(false);
+            document.getElementById('timer-display').classList.remove('timer-end');
+            timerInterval = setInterval(() => {
+                timerRemaining--;
+                if (timerRemaining <= 0) {
+                    timerRemaining = 0;
+                    stopTimer();
+                    document.getElementById('timer-start').disabled = true;
+                    updateTimerDisplay();
+                    document.getElementById('timer-display').classList.add('timer-end');
+                    return;
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (!timerInterval) return;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('timer-start').disabled = false;
+            document.getElementById('timer-stop').disabled = true;
+            setTimerInputs(true);
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerStarted = false;
+            document.getElementById('timer-start').disabled = false;
+            document.getElementById('timer-minutes').value = '45';
+            document.getElementById('timer-seconds').value = '00';
+            timerRemaining = 45 * 60;
+            document.getElementById('timer-display').classList.remove('timer-end');
+            setTimerInputs(true);
         }
 
         init();
